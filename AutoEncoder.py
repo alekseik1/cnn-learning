@@ -70,7 +70,7 @@ autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
 # In[8]:
 
 
-NUM_EPOCHS = 100
+NUM_EPOCHS = 10
 autoencoder.fit(
     x_train, x_train, 
     epochs=NUM_EPOCHS, 
