@@ -1,0 +1,6 @@
+IMG_WIDTH = 28
+IMG_HEIGHT = 28
+IMG_DEPTH = 1
+ENCODER_MODEL_NAME='encoder_trained.h5'
+CLASSIFIER_MODEL_NAME='classifier_trained.h5'
+
