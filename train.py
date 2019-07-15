@@ -1,9 +1,9 @@
-NUM_EPOCHS = 60
-
 from keras import Model
 from keras.layers import Conv2D, MaxPooling2D, UpSampling2D, Input, Dense
 import numpy as np
 from keras.datasets import mnist
+
+from config import ENCODER_MODEL_NAME, NUM_EPOCHS
 
 # load dataset
 # MNIST, for now
@@ -41,6 +41,5 @@ autoencoder.fit(
 )
 
 # Save the model
-FILENAME = 'example_save.h5'
-autoencoder.save(FILENAME)
+autoencoder.save(ENCODER_MODEL_NAME)
 
