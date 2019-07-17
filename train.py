@@ -22,18 +22,29 @@ x = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
 x = MaxPooling2D((2, 2), padding='same')(x)
 x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
 encoded = MaxPooling2D((2, 2), padding='same')(x)
-x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
+# After encoding, we need to classify images
+classifier = Dense(784, activation='relu', name='classifier_output')(encoded)
 
+x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
 x = UpSampling2D((2, 2))(x)
 x = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
 x = UpSampling2D((2, 2))(x)
-decoded = Conv2D(1, (3, 3), activation='relu', padding='same')(x)
+decoded = Conv2D(1, (3, 3), activation='relu', padding='same', name='decoded_output')(x)
 
-autoencoder = Model(input_img, decoded)
-autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
+model = Model(inputs=[input_img], outputs=[classifier, decoded])
+model.compile(optimizer='adadelta',
+              # We define loss function for each output
+              loss={'classifier_output': 'binary_crossentropy', 'decoded_output': 'binary_crossentropy'},
+              # And resulting loss function will be a weighted sum of all loss functions
+              # We want weigths 1.0 for all losses (for now, at least)
+              loss_weights={'classifier_output': 1.0, 'decoded_output': 1.0},
+              )
 # Train it
-autoencoder.fit(
-    x_train, x_train, 
+model.fit(
+    # Train data
+    x_train,
+    # Test data. Note that each output has its own data to train on!
+    {'decoded_output': x_train, 'classifier_output': y_train},
     epochs=NUM_EPOCHS, 
     batch_size=128, 
     shuffle=True, 
@@ -41,5 +52,5 @@ autoencoder.fit(
 )
 
 # Save the model
-autoencoder.save(ENCODER_MODEL_NAME)
+model.save(ENCODER_MODEL_NAME)
 
