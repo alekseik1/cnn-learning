@@ -1,8 +1,0 @@
-NUM_EPOCHS = 1
-IMG_WIDTH = 28
-IMG_HEIGHT = 28
-IMG_DEPTH = 1
-NUM_CLASSES = 10
-ENCODER_MODEL_NAME = 'model_trained.h5'
-CLASSIFIER_MODEL_NAME = 'classifier_trained.h5'
-

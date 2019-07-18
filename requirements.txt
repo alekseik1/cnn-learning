@@ -4,3 +4,4 @@ jupyter
 matplotlib
 keras
 h5py
+sklearn
