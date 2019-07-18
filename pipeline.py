@@ -1,5 +1,6 @@
 from keras.datasets import mnist
-from preprocessing import preprocess_data
+from preprocessing import ImageScaler, preprocess_categories
+from sklearn.pipeline import Pipeline
 from model import MainModel
 
 MODEL_NAME = 'model_trained.h5'
@@ -7,14 +8,10 @@ MODEL_NAME = 'model_trained.h5'
 if __name__ == '__main__':
     # Load dataset
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    x_train, y_train = preprocess_data(x_train, y_train)
-    x_test, y_test = preprocess_data(x_test, y_test)
+    y_train, y_test = preprocess_categories(y_train), preprocess_categories(y_test)
 
-
-    
-
-
-
-    model = MainModel()
-    model.fit(x_train, y_train)
-    model.save(MODEL_NAME)
+    pipeline = Pipeline([
+       ('scaler', ImageScaler),
+       ('regressor', MainModel())
+    ])
+    pipeline.fit(x_train, y_train)
