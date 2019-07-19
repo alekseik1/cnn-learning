@@ -2,6 +2,7 @@ from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Den
 from keras import Model
 from sklearn.base import BaseEstimator, ClassifierMixin
 from keras.models import load_model
+import numpy as np
 
 
 # TODO: make better name for the class
@@ -87,6 +88,9 @@ class MainModel(BaseEstimator, ClassifierMixin):
         return self
 
     def predict(self, x_data):
+        return np.argmax(self.predict_proba(x_data), axis=1)
+
+    def predict_proba(self, x_data):
         # NOTE. We do not return decoded pictures for two reasons:
         # 1. sklearn expect `predict` method to return one value
         # 2. We actually don't need decoded images
