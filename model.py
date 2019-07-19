@@ -1,6 +1,7 @@
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense
 from keras import Model
 from sklearn.base import BaseEstimator, ClassifierMixin
+from preprocessing import preprocess_categories
 from keras.models import load_model
 import numpy as np
 
@@ -67,6 +68,9 @@ class MainModel(BaseEstimator, ClassifierMixin):
 
     def fit(self, x_train, y_train):
         # TODO: Validation of parameters
+
+        # NOTE: we make category matrix from y_train here!
+        y_train = preprocess_categories(y_train)
 
         self._ensure_model()
         # Don't train model again if we've just loaded it
