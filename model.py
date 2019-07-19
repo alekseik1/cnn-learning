@@ -1,12 +1,14 @@
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense
 from keras import Model
 from sklearn.base import BaseEstimator, ClassifierMixin
+from keras.models import load_model
 
 
 # TODO: make better name for the class
 class MainModel(BaseEstimator, ClassifierMixin):
 
     def __init__(self,
+                 load_from=None,
                  optimizer='adadelta',
                  input_shape=(28, 28, 1),
                  classifier_loss='categorical_crossentropy',
@@ -14,8 +16,7 @@ class MainModel(BaseEstimator, ClassifierMixin):
                  classifier_metrics='accuracy',
                  num_epochs=10,
                  batch_size=128,
-                 save_after_train=False,
-                 save_path='model_trained.h5'):
+                 save_to=None):
         self.optimizer = optimizer
         self.input_shape = input_shape
         self.classifier_loss = classifier_loss
@@ -24,8 +25,8 @@ class MainModel(BaseEstimator, ClassifierMixin):
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.model_ = None
-        self.save_after_train = save_after_train
-        self.save_path = save_path
+        self.save_to = save_to
+        self.load_from = load_from
 
     def _create_model(self):
         input_img = Input(shape=self.input_shape)
@@ -54,12 +55,18 @@ class MainModel(BaseEstimator, ClassifierMixin):
                       )
         return model
 
+    def _ensure_model(self):
+        # Create model if necessary
+        if self.model_ is None:
+            # Load model if load path was passed
+            if self.load_from is not None:
+                self.model_ = load_model(self.load_from)
+            self.model_ = self._create_model()
+
     def fit(self, x_train, y_train):
         # TODO: Validation of parameters
 
-        # Create model if necessary
-        if self.model_ is None:
-            self.model_ = self._create_model()
+        self._ensure_model()
         # Train it
         self.model_.fit(
             # Train data
@@ -71,8 +78,8 @@ class MainModel(BaseEstimator, ClassifierMixin):
             shuffle=True,
             # validation_data=(x_test, {'classifier_output': y_test, 'decoded_output': x_test}),
         )
-        if self.save_after_train:
-            self.model_.save(self.save_path)
+        if self.save_to:
+            self.model_.save(self.save_to)
         return self
 
     def predict(self, x_data):
