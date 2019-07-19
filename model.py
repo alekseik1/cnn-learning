@@ -86,7 +86,7 @@ class MainModel(BaseEstimator, ClassifierMixin):
         # NOTE. We do not return decoded pictures for two reasons:
         # 1. sklearn expect `predict` method to return one value
         # 2. We actually don't need decoded images
-        classes, decoded_imgs = self._model.predict(x_data)
+        classes, decoded_imgs = self.model_.predict(x_data)
         return classes
 
     def save(self, path):
