@@ -13,7 +13,9 @@ class MainModel(BaseEstimator, ClassifierMixin):
                  decoder_loss='binary_crossentropy',
                  classifier_metrics='accuracy',
                  num_epochs=10,
-                 batch_size=128):
+                 batch_size=128,
+                 save_after_train=False,
+                 save_path='model_trained.h5'):
         self.optimizer = optimizer
         self.input_shape = input_shape
         self.classifier_loss = classifier_loss
@@ -22,6 +24,8 @@ class MainModel(BaseEstimator, ClassifierMixin):
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.model_ = None
+        self.save_after_train = save_after_train
+        self.save_path = save_path
 
     def _create_model(self):
         input_img = Input(shape=self.input_shape)
@@ -67,6 +71,8 @@ class MainModel(BaseEstimator, ClassifierMixin):
             shuffle=True,
             # validation_data=(x_test, {'classifier_output': y_test, 'decoded_output': x_test}),
         )
+        if self.save_after_train:
+            self.model_.save(self.save_path)
         return self
 
     def predict(self, x_data):

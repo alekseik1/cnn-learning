@@ -12,6 +12,6 @@ if __name__ == '__main__':
 
     pipeline = Pipeline([
        ('scaler', ImageScaler),
-       ('regressor', MainModel())
+       ('regressor', MainModel(save_after_train=True))
     ])
     pipeline.fit(x_train, y_train)
