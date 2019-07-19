@@ -68,6 +68,9 @@ class MainModel(BaseEstimator, ClassifierMixin):
         # TODO: Validation of parameters
 
         self._ensure_model()
+        # Don't train model again if we've just loaded it
+        if self.load_from:
+            return
         # Train it
         self.model_.fit(
             # Train data
