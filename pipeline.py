@@ -11,7 +11,7 @@ if __name__ == '__main__':
     y_train, y_test = preprocess_categories(y_train), preprocess_categories(y_test)
 
     pipeline = Pipeline([
-       ('scaler', ImageScaler),
+       ('scaler', ImageScaler()),
        ('regressor', MainModel(save_after_train=True))
     ])
     pipeline.fit(x_train, y_train)

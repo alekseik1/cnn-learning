@@ -19,4 +19,4 @@ def preprocess_image(x_data):
     return x_data
 
 
-ImageScaler = FunctionTransformer(preprocess_image, validate=False)
+ImageScaler = lambda: FunctionTransformer(preprocess_image, validate=False)
