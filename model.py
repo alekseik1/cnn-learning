@@ -61,7 +61,8 @@ class MainModel(BaseEstimator, ClassifierMixin):
             # Load model if load path was passed
             if self.load_from is not None:
                 self.model_ = load_model(self.load_from)
-            self.model_ = self._create_model()
+            else:
+                self.model_ = self._create_model()
 
     def fit(self, x_train, y_train):
         # TODO: Validation of parameters
