@@ -12,7 +12,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
     def __init__(self,
                  load_from=None,
                  optimizer='adadelta',
-                 classifier_loss='categorical_crossentropy',
+                 classifier_loss='binary_crossentropy',
                  decoder_loss='binary_crossentropy',
                  classifier_metrics='accuracy',
                  num_epochs=10,
@@ -36,7 +36,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
         encoded = MaxPooling2D((2, 2), padding='same')(x)
         # After encoding, we need to classify images
         flatten = Flatten()(encoded)
-        classifier = Dense(2, activation='softmax', name='classifier_output')(flatten)
+        classifier = Dense(1, activation='softmax', name='classifier_output')(flatten)
 
         x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
         x = UpSampling2D((2, 2))(x)
@@ -67,7 +67,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
         # TODO: Validation of parameters
 
         # NOTE: we make category matrix from y_train here!
-        y_train = preprocess_categories(y_train)
+        y_train = (y_train > 0).astype(int)
 
         self._ensure_model(input_shape=x_train.shape[1:])
         # Train it
