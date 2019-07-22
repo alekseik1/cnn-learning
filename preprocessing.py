@@ -7,7 +7,7 @@ def _separate_by_labels(x_data, y_data):
     return x_data[np.argwhere(y_data == 0).reshape(-1)], x_data[np.argwhere(y_data != 0).reshape(-1)]
 
 
-def split_into_bags(x_data, y_data, zero_bags_percent=0.5, bag_size=100, bag_percentage=0.15):
+def split_into_bags(x_data, y_data, zero_bags_percent=0.5, bag_size=100, zeros_in_bag_percentage=0.15):
     """
     Splits data in bags so that it has `zero_bags_percent` bags with `bag_percentage` zero rate out of total bags
     and (1 - zero_bags_percent) of bags without any zero element
@@ -16,7 +16,7 @@ def split_into_bags(x_data, y_data, zero_bags_percent=0.5, bag_size=100, bag_per
     :param y_data: source labels
     :param zero_bags_percent: percentage of bags containing at least one zero element
     :param bag_size: size of one bag
-    :param bag_percentage: percentage of zero elements in one zero bag
+    :param zeros_in_bag_percentage: percentage of zero elements in one zero bag
     :return:
     """
     zero_x, nonzero_x = _separate_by_labels(x_data, y_data)
@@ -29,7 +29,7 @@ def split_into_bags(x_data, y_data, zero_bags_percent=0.5, bag_size=100, bag_per
     # Create zero bags
     for i in range(zero_bags_number):
         print('prepocessing zero-bag: {} of total {}'.format(i+1, total_bags_number))
-        x_bags_split[i], y_bags_split[i] = create_bag(zero_x, nonzero_x, bag_size, percentage=bag_percentage)
+        x_bags_split[i], y_bags_split[i] = create_bag(zero_x, nonzero_x, bag_size, percentage=zeros_in_bag_percentage)
     # Create nonzero bags
     for i in range(zero_bags_number, total_bags_number):
         print('preprocessing nonzero-bag: {} of total {}'.format(i+1, total_bags_number))
