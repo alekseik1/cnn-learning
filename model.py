@@ -12,8 +12,6 @@ class BagModel(BaseEstimator, ClassifierMixin):
     def __init__(self,
                  load_from=None,
                  optimizer='adadelta',
-                 input_shape=(28, 28, 1),
-                 bag_size=1,
                  classifier_loss='categorical_crossentropy',
                  decoder_loss='binary_crossentropy',
                  classifier_metrics='accuracy',
@@ -21,8 +19,6 @@ class BagModel(BaseEstimator, ClassifierMixin):
                  batch_size=128,
                  save_to=None):
         self.optimizer = optimizer
-        self.input_shape = input_shape
-        self.bag_size = bag_size
         self.classifier_loss = classifier_loss
         self.decoder_loss = decoder_loss
         self.classifier_metrics = classifier_metrics
@@ -32,21 +28,22 @@ class BagModel(BaseEstimator, ClassifierMixin):
         self.save_to = save_to
         self.load_from = load_from
 
-    def _create_model(self):
-        input_img = Input(shape=(self.bag_size, *self.input_shape))
+    def _create_model(self, input_shape):
+        input_img = Input(shape=input_shape)
         x = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
         x = MaxPooling2D((2, 2), padding='same')(x)
         x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
         encoded = MaxPooling2D((2, 2), padding='same')(x)
         # After encoding, we need to classify images
         flatten = Flatten()(encoded)
-        classifier = Dense(10, activation='softmax', name='classifier_output')(flatten)
+        classifier = Dense(2, activation='softmax', name='classifier_output')(flatten)
 
         x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
         x = UpSampling2D((2, 2))(x)
         x = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
         x = UpSampling2D((2, 2))(x)
-        decoded = Conv2D(1, (3, 3), activation='relu', padding='same', name='decoded_output')(x)
+        # In our model, each image in 'bag' should be considered as 'color channel' in CNN terms
+        decoded = Conv2D(input_shape[-1], (3, 3), activation='relu', padding='same', name='decoded_output')(x)
 
         model = Model(inputs=[input_img], outputs=[classifier, decoded])
         model.compile(optimizer=self.optimizer,
@@ -59,14 +56,12 @@ class BagModel(BaseEstimator, ClassifierMixin):
                       )
         return model
 
-    def _ensure_model(self):
+    def _ensure_model(self, input_shape):
         # Create model if necessary
-        if self.model_ is None:
-            # Load model if load path was passed
-            if self.load_from is not None:
-                self.model_ = load_model(self.load_from)
-            else:
-                self.model_ = self._create_model()
+        if self.load_from is not None:
+            self.model_ = load_model(self.load_from)
+        else:
+            self.model_ = self._create_model(input_shape)
 
     def fit(self, x_train, y_train):
         # TODO: Validation of parameters
@@ -74,10 +69,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
         # NOTE: we make category matrix from y_train here!
         y_train = preprocess_categories(y_train)
 
-        self._ensure_model()
-        # Don't train model again if we've just loaded it
-        if self.load_from:
-            return
+        self._ensure_model(input_shape=x_train.shape[1:])
         # Train it
         self.model_.fit(
             # Train data

@@ -17,13 +17,15 @@ def split_into_bags(x_data, y_data, zero_bags_percent=0.5, bag_size=100, zeros_i
     :param zero_bags_percent: percentage of bags containing at least one zero element
     :param bag_size: size of one bag
     :param zeros_in_bag_percentage: percentage of zero elements in one zero bag
-    :return:
+    :return: tuple (x_bags_split, y_bags_split) where `x_bags` split is
+    (bags_total, bag_size, img_width, img_height) array
+    and `y_bags_split` is a 1-D vector (bags_total,) of numbers: 0 or 1
     """
     zero_x, nonzero_x = _separate_by_labels(x_data, y_data)
     total_bags_number = np.ceil(len(x_data)/bag_size).astype(int)
     zero_bags_number = np.ceil(total_bags_number*zero_bags_percent).astype(int)
 
-    x_bags_split = np.empty([total_bags_number, bag_size, *x_data.shape[1:]])
+    x_bags_split = np.empty([total_bags_number, *x_data.shape[1:], bag_size])
     y_bags_split = np.empty([total_bags_number], dtype=np.int)
 
     # Create zero bags
@@ -46,7 +48,7 @@ def create_bag(zero_x, nonzero_x, bag_size=100, percentage=0.01):
     :param nonzero_x: source input (nonzero-labeled)
     :param bag_size: size of a bag
     :param percentage: percentage of zeros
-    :return: tuple (bag, label). `bag` is (bag_size, *img_dimension) array, `label` is 1-D number -- one of 1 or 0
+    :return: tuple (bag, label). `bag` is (bag_size, img_width, img_height) array, `label` is 1-D number -- one of 1 or 0
     """
     zeros_in_bag = np.ceil(percentage*bag_size).astype(int)
     # Numpy random.choice needs 1-D array
@@ -55,7 +57,8 @@ def create_bag(zero_x, nonzero_x, bag_size=100, percentage=0.01):
     nonzero_choice = nonzero_x[np.random.choice(len(nonzero_x), bag_size - zeros_in_bag)]
     result_x = np.concatenate((zero_choice, nonzero_choice))
     result_y = int(percentage == 0)
-    return result_x, result_y
+    # Use .T for output shape (width, height, pic_amount)
+    return result_x.T, result_y
 
 
 def preprocess_categories(y_data):
@@ -65,12 +68,7 @@ def preprocess_categories(y_data):
 
 
 def preprocess_image(x_data):
-    img_width, img_height = x_data.shape[1], x_data.shape[2]
-    # If no depth is specified, consider it as 1
-    img_depth = 1 if len(x_data.shape) == 3 else x_data.shape[3]
-
     x_data = x_data/256
-    x_data = x_data.reshape(len(x_data), img_width, img_height, img_depth)
     return x_data
 
 
