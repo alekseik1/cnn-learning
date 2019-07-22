@@ -7,12 +7,13 @@ import numpy as np
 
 
 # TODO: make better name for the class
-class MainModel(BaseEstimator, ClassifierMixin):
+class BagModel(BaseEstimator, ClassifierMixin):
 
     def __init__(self,
                  load_from=None,
                  optimizer='adadelta',
                  input_shape=(28, 28, 1),
+                 bag_size=1,
                  classifier_loss='categorical_crossentropy',
                  decoder_loss='binary_crossentropy',
                  classifier_metrics='accuracy',
@@ -21,6 +22,7 @@ class MainModel(BaseEstimator, ClassifierMixin):
                  save_to=None):
         self.optimizer = optimizer
         self.input_shape = input_shape
+        self.bag_size = bag_size
         self.classifier_loss = classifier_loss
         self.decoder_loss = decoder_loss
         self.classifier_metrics = classifier_metrics
@@ -31,7 +33,7 @@ class MainModel(BaseEstimator, ClassifierMixin):
         self.load_from = load_from
 
     def _create_model(self):
-        input_img = Input(shape=self.input_shape)
+        input_img = Input(shape=(self.bag_size, *self.input_shape))
         x = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
         x = MaxPooling2D((2, 2), padding='same')(x)
         x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
