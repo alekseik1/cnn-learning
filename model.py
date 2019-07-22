@@ -1,4 +1,4 @@
-from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense
+from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense, Activation
 from keras import Model
 from sklearn.base import BaseEstimator, ClassifierMixin
 from preprocessing import preprocess_categories
@@ -30,17 +30,26 @@ class BagModel(BaseEstimator, ClassifierMixin):
 
     def _create_model(self, input_shape):
         input_img = Input(shape=input_shape)
+        x = Conv2D(64, (3, 3), activation='relu', padding='same')(input_img)
+        x = MaxPooling2D((2, 2), padding='same')(x)
+        x = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
+        x = MaxPooling2D((2, 2), padding='same')(x)
         x = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
         x = MaxPooling2D((2, 2), padding='same')(x)
         x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
         encoded = MaxPooling2D((2, 2), padding='same')(x)
         # After encoding, we need to classify images
         flatten = Flatten()(encoded)
-        classifier = Dense(1, activation='softmax', name='classifier_output')(flatten)
+        x = Dense(128, activation='softmax')(flatten)
+        x = Dense(64, activation='softmax')(x)
+        x = Dense(32, activation='softmax')(x)
+        classifier = Dense(1, activation='softmax', name='classifier_output')(x)
 
         x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
+        x = Conv2D(16, (3, 3), activation='relu', padding='same')(encoded)
+        x = Conv2D(32, (3, 3), activation='relu', padding='same')(encoded)
         x = UpSampling2D((2, 2))(x)
-        x = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
+        x = Conv2D(64, (3, 3), activation='relu', padding='same')(x)
         x = UpSampling2D((2, 2))(x)
         # In our model, each image in 'bag' should be considered as 'color channel' in CNN terms
         decoded = Conv2D(input_shape[-1], (3, 3), activation='relu', padding='same', name='decoded_output')(x)
