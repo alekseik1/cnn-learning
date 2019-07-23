@@ -1,5 +1,6 @@
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense, Activation
 from keras import Model
+from keras.models import load_model
 from sklearn.base import BaseEstimator, ClassifierMixin
 import numpy as np
 
@@ -64,7 +65,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
 
         self.model_ = self._create_model(x_train.shape[1:])
         if self.load_from:
-            self.model_.load_weights(self.load_from)
+            self.model_ = load_model(self.load_from)
         else:
             # Train it
             self.model_.fit(
@@ -78,7 +79,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
                 # validation_data=(x_test, {'classifier_output': y_test, 'decoded_output': x_test}),
             )
         if self.save_to:
-            self.model_.save_weights(self.save_to)
+            self.model_.save(self.save_to)
         return self
 
     def predict(self, x_data):
