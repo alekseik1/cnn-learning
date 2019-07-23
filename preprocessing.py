@@ -30,11 +30,9 @@ def split_into_bags(x_data, y_data, zero_bags_percent=0.5, bag_size=100, zeros_i
 
     # Create zero bags
     for i in range(zero_bags_number):
-        print('prepocessing zero-bag: {} of total {}'.format(i+1, total_bags_number))
         x_bags_split[i], y_bags_split[i] = create_bag(zero_x, nonzero_x, bag_size, percentage=zeros_in_bag_percentage)
     # Create nonzero bags
     for i in range(zero_bags_number, total_bags_number):
-        print('preprocessing nonzero-bag: {} of total {}'.format(i+1, total_bags_number))
         x_bags_split[i], y_bags_split[i] = create_bag(zero_x, nonzero_x, bag_size, percentage=0)
 
     return x_bags_split, y_bags_split
