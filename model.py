@@ -1,8 +1,6 @@
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense, Activation
 from keras import Model
 from sklearn.base import BaseEstimator, ClassifierMixin
-from preprocessing import preprocess_categories
-from keras.models import load_model
 import numpy as np
 
 
@@ -65,33 +63,29 @@ class BagModel(BaseEstimator, ClassifierMixin):
                       )
         return model
 
-    def _ensure_model(self, input_shape):
-        # Create model if necessary
-        if self.load_from is not None:
-            self.model_ = load_model(self.load_from)
-        else:
-            self.model_ = self._create_model(input_shape)
-
     def fit(self, x_train, y_train):
         # TODO: Validation of parameters
 
         # NOTE: we make category matrix from y_train here!
         y_train = (y_train > 0).astype(int)
 
-        self._ensure_model(input_shape=x_train.shape[1:])
-        # Train it
-        self.model_.fit(
-            # Train data
-            x_train,
-            # Test data. Note that each output has its own data to train on!
-            {'decoded_output': x_train, 'classifier_output': y_train},
-            epochs=self.num_epochs,
-            batch_size=self.batch_size,
-            shuffle=True,
-            # validation_data=(x_test, {'classifier_output': y_test, 'decoded_output': x_test}),
-        )
+        self.model_ = self._create_model(x_train.shape[1:])
+        if self.load_from:
+            self.model_.load_weights(self.load_from)
+        else:
+            # Train it
+            self.model_.fit(
+                # Train data
+                x_train,
+                # Test data. Note that each output has its own data to train on!
+                {'decoded_output': x_train, 'classifier_output': y_train},
+                epochs=self.num_epochs,
+                batch_size=self.batch_size,
+                shuffle=True,
+                # validation_data=(x_test, {'classifier_output': y_test, 'decoded_output': x_test}),
+            )
         if self.save_to:
-            self.model_.save(self.save_to)
+            self.model_.save_weights(self.save_to)
         return self
 
     def predict(self, x_data):
