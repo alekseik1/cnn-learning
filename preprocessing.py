@@ -18,7 +18,7 @@ def split_into_bags(x_data, y_data, zero_bags_percent=0.5, bag_size=100, zeros_i
     :param bag_size: size of one bag
     :param zeros_in_bag_percentage: percentage of zero elements in one zero bag
     :return: tuple (x_bags_split, y_bags_split) where `x_bags` split is
-    (bags_total, bag_size, img_width, img_height) array
+    (bags_total, img_width, img_height, bag_size) array
     and `y_bags_split` is a 1-D vector (bags_total,) of numbers: 0 or 1
     """
     zero_x, nonzero_x = _separate_by_labels(x_data, y_data)
