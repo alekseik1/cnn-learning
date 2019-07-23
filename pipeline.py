@@ -12,7 +12,7 @@ pipeline = Pipeline([
 
 pipeline_load = Pipeline([
     ('scaler', ImageScaler()),
-    ('regressor', BagModel(load_from=MODEL_NAME, num_epochs=50))
+    ('regressor', BagModel(load_from=MODEL_NAME))
 ])
 
 if __name__ == '__main__':
