@@ -25,7 +25,7 @@ def split_into_bags(x_data, y_data, zero_bags_percent=0.5, bag_size=100, zeros_i
     total_bags_number = np.ceil(len(x_data)/bag_size).astype(int)
     zero_bags_number = np.ceil(total_bags_number*zero_bags_percent).astype(int)
 
-    x_bags_split = np.empty([total_bags_number, *x_data.shape[1:], bag_size])
+    x_bags_split = np.empty([total_bags_number, bag_size, *x_data.shape[1:]])
     y_bags_split = np.empty([total_bags_number], dtype=np.int)
 
     # Create zero bags
@@ -55,8 +55,7 @@ def create_bag(zero_x, nonzero_x, bag_size=100, percentage=0.01):
     nonzero_choice = nonzero_x[np.random.choice(len(nonzero_x), bag_size - zeros_in_bag)]
     result_x = np.concatenate((zero_choice, nonzero_choice))
     result_y = int(percentage == 0)
-    # Use .T for output shape (width, height, pic_amount)
-    return result_x.T, result_y
+    return result_x, result_y
 
 
 def preprocess_categories(y_data):
@@ -66,8 +65,7 @@ def preprocess_categories(y_data):
 
 
 def preprocess_image(x_data):
-    x_data = x_data/256
-    return x_data
+    return x_data/256
 
 
 ImageScaler = lambda: FunctionTransformer(preprocess_image, validate=False)
