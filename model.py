@@ -11,6 +11,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
                  load_from=None,
                  optimizer='adadelta',
                  classifier_loss='binary_crossentropy',
+                 classifier_activation='sigmoid',
                  decoder_loss='binary_crossentropy',
                  classifier_metrics='accuracy',
                  num_epochs=10,
@@ -18,6 +19,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
                  save_to=None):
         self.optimizer = optimizer
         self.classifier_loss = classifier_loss
+        self.classifier_activation = classifier_activation
         self.decoder_loss = decoder_loss
         self.classifier_metrics = classifier_metrics
         self.num_epochs = num_epochs
@@ -34,10 +36,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
         encoded = MaxPooling2D((2, 2), padding='same')(x)
         # After encoding, we need to classify images
         flatten = Flatten()(encoded)
-        x = Dense(128, activation='softmax')(flatten)
-        x = Dense(64, activation='softmax')(x)
-        x = Dense(32, activation='softmax')(x)
-        classifier = Dense(1, activation='softmax', name='classifier_output')(x)
+        classifier = Dense(1, activation=self.classifier_activation, name='classifier_output')(flatten)
 
         x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
         x = UpSampling2D((2, 2))(x)
@@ -91,6 +90,3 @@ class BagModel(BaseEstimator, ClassifierMixin):
         # 2. We actually don't need decoded images
         classes, decoded_imgs = self.model_.predict(x_data)
         return classes
-
-    def save(self, path):
-        self.model_.save(path)
