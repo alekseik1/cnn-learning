@@ -18,14 +18,14 @@ def split_into_bags(x_data, y_data, zero_bags_percent=0.5, bag_size=100, zeros_i
     :param bag_size: size of one bag
     :param zeros_in_bag_percentage: percentage of zero elements in one zero bag
     :return: tuple (x_bags_split, y_bags_split) where `x_bags` split is
-    (bags_total, img_width, img_height, bag_size) array
+    (bags_total, bag_size, img_width, img_height) array
     and `y_bags_split` is a 1-D vector (bags_total,) of numbers: 0 or 1
     """
     zero_x, nonzero_x = _separate_by_labels(x_data, y_data)
     total_bags_number = np.ceil(len(x_data)/bag_size).astype(int)
     zero_bags_number = np.ceil(total_bags_number*zero_bags_percent).astype(int)
 
-    x_bags_split = np.empty([total_bags_number, *x_data.shape[1:], bag_size])
+    x_bags_split = np.empty([total_bags_number, bag_size, *x_data.shape[1:]])
     y_bags_split = np.empty([total_bags_number], dtype=np.int)
 
     # Create zero bags
@@ -55,8 +55,7 @@ def create_bag(zero_x, nonzero_x, bag_size=100, percentage=0.01):
     nonzero_choice = nonzero_x[np.random.choice(len(nonzero_x), bag_size - zeros_in_bag)]
     result_x = np.concatenate((zero_choice, nonzero_choice))
     result_y = int(percentage == 0)
-    # Use .T for output shape (width, height, pic_amount)
-    return result_x.T, result_y
+    return result_x, result_y
 
 
 def preprocess_categories(y_data):
