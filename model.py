@@ -1,8 +1,23 @@
-from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense, Activation
-from keras import Model
+from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense, Lambda, concatenate, LSTM, Reshape
+from keras import Model, Sequential
 from keras.models import load_model
 from sklearn.base import BaseEstimator, ClassifierMixin
 import numpy as np
+
+
+def _attach_to_pipeline(layer, pipeline):
+    result = []
+    # Connect other layers with each other
+    for i, curr_layer in enumerate(pipeline):
+        result.append(
+            # Connect first layer to `layer`
+            curr_layer(layer if i == 0 else result[i - 1])
+        )
+    return result[-1]
+
+
+def SplitBagLayer(bag_size):
+    return Lambda(lambda all_bags: [all_bags[:, i] for i in range(bag_size)])
 
 
 # TODO: make better name for the class
@@ -31,22 +46,48 @@ class BagModel(BaseEstimator, ClassifierMixin):
 
     def _create_model(self, input_shape):
         input_img = Input(shape=input_shape)
-        x = Conv2D(64, (3, 3), activation='relu', padding='same')(input_img)
-        x = MaxPooling2D((2, 2), padding='same')(x)
-        x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
-        encoded = MaxPooling2D((2, 2), padding='same')(x)
+
+        # Create shared encoder.
+        encoder_pipeline = [
+            Conv2D(64, (3, 3), activation='relu', padding='same'),
+            MaxPooling2D((2, 2), padding='same'),
+            Conv2D(8, (3, 3), activation='relu', padding='same'),
+            MaxPooling2D((2, 2), padding='same'),
+        ]
+
+        # Split bag into single images to get encoded vectors
+        splitted_imgs = SplitBagLayer(bag_size=input_shape[0])(input_img)
+        encoded_img_matrices, encoded_img_vectors = [], []
+        for single_image in splitted_imgs:
+            encoded_img = _attach_to_pipeline(single_image, encoder_pipeline)
+
+            encoded_img_matrices.append(encoded_img)
+            encoded_img_vectors.append(Flatten()(encoded_img))
+        # We have v=(vec1, ... , vecN) where N is number of images in one bag
+        # Now we need to do aggregation
+        concat_matrix = concatenate(encoded_img_vectors, axis=0)
+        # Now we have array with shape (num_vectors, latent_features). Let's aggregate them
+        # NOTE: Aggregator is based on maximum
+        aggregator = Lambda(lambda matrix: np.max(matrix, axis=0))(concat_matrix)
+
         # After encoding, we need to classify images
-        flatten = Flatten()(encoded)
-        classifier = Dense(1, activation=self.classifier_activation, name='classifier_output')(flatten)
+        classifier = Dense(1, activation=self.classifier_activation, name='classifier_output')(aggregator)
 
-        x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
-        x = UpSampling2D((2, 2))(x)
-        x = Conv2D(64, (3, 3), activation='relu', padding='same')(x)
-        x = UpSampling2D((2, 2))(x)
-        # In our model, each image in 'bag' should be considered as 'color channel' in CNN terms
-        decoded = Conv2D(input_shape[-1], (3, 3), activation='relu', padding='same', name='decoded_output')(x)
+        decoder_pipeline = [
+            Conv2D(8, (3, 3), activation='relu', padding='same'),
+            UpSampling2D((2, 2)),
+            Conv2D(64, (3, 3), activation='relu', padding='same'),
+            UpSampling2D((2, 2)),
+            Conv2D(input_shape[-1], (3, 3), activation='relu', padding='same'),
+            # For convenience, reshape (None, w, h, c) -> (None, 1, w, h, c)
+            # where 'w'=width, 'h'=height, 'c'=color_channel
+            Reshape((1, *input_shape[1:]))
+        ]
+        # TODO: decoding
+        decoded_images = [_attach_to_pipeline(single_image, decoder_pipeline) for single_image in encoded_img_matrices]
+        decoded_images = concatenate(decoded_images, axis=1, name='decoded_output')
 
-        model = Model(inputs=[input_img], outputs=[classifier, decoded])
+        model = Model(inputs=[input_img], outputs=[classifier, decoded_images])
         model.compile(optimizer=self.optimizer,
                       # We define loss function for each output
                       loss={'classifier_output': self.classifier_loss, 'decoded_output': self.decoder_loss},

@@ -3,6 +3,10 @@ from sklearn.preprocessing import FunctionTransformer
 import numpy as np
 
 
+def add_color_channel(x_data):
+    return x_data.reshape(*x_data.shape, 1)
+
+
 def _separate_by_labels(x_data, y_data):
     return x_data[np.argwhere(y_data == 0).reshape(-1)], x_data[np.argwhere(y_data != 0).reshape(-1)]
 
