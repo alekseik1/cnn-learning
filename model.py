@@ -1,6 +1,7 @@
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense, Lambda, concatenate, LSTM, Reshape
 from keras import Model, Sequential
 from keras.models import load_model
+import keras.backend as K
 from sklearn.base import BaseEstimator, ClassifierMixin
 import numpy as np
 
@@ -62,13 +63,17 @@ class BagModel(BaseEstimator, ClassifierMixin):
             encoded_img = _attach_to_pipeline(single_image, encoder_pipeline)
 
             encoded_img_matrices.append(encoded_img)
-            encoded_img_vectors.append(Flatten()(encoded_img))
+            encoded_img_vectors.append(
+                # We restore back `bag` dimension in vectors,
+                # so that we'll have list of (batch_dim, 1, prod_dim) tensors
+                Reshape((1, -1))(Flatten()(encoded_img))
+            )
         # We have v=(vec1, ... , vecN) where N is number of images in one bag
         # Now we need to do aggregation
-        concat_matrix = concatenate(encoded_img_vectors, axis=0)
+        concat_matrix = concatenate(encoded_img_vectors, axis=1)
         # Now we have array with shape (num_vectors, latent_features). Let's aggregate them
         # NOTE: Aggregator is based on maximum
-        aggregator = Lambda(lambda matrix: np.max(matrix, axis=0))(concat_matrix)
+        aggregator = Lambda(lambda matrix: K.max(matrix, axis=1))(concat_matrix)
 
         # After encoding, we need to classify images
         classifier = Dense(1, activation=self.classifier_activation, name='classifier_output')(aggregator)
