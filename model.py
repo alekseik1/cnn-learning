@@ -1,24 +1,10 @@
-from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense, Lambda, concatenate, LSTM, Reshape
-from keras import Model, Sequential
-from keras.models import load_model
+from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense, Lambda, concatenate, Reshape
+from keras import Model
 import keras.backend as K
 from sklearn.base import BaseEstimator, ClassifierMixin
 import numpy as np
 
-
-def _attach_to_pipeline(layer, pipeline):
-    result = []
-    # Connect other layers with each other
-    for i, curr_layer in enumerate(pipeline):
-        result.append(
-            # Connect first layer to `layer`
-            curr_layer(layer if i == 0 else result[i - 1])
-        )
-    return result[-1]
-
-
-def SplitBagLayer(bag_size):
-    return Lambda(lambda all_bags: [all_bags[:, i] for i in range(bag_size)])
+from layers import SplitBagLayer, _attach_to_pipeline
 
 
 # TODO: make better name for the class
@@ -111,7 +97,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
 
         self.model_ = self._create_model(x_train.shape[1:])
         if self.load_from:
-            self.model_ = load_model(self.load_from)
+            self.model_.load_weights(self.load_from)
         else:
             # Train it
             self.model_.fit(
@@ -125,7 +111,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
                 # validation_data=(x_test, {'classifier_output': y_test, 'decoded_output': x_test}),
             )
         if self.save_to:
-            self.model_.save(self.save_to)
+            self.model_.save_weights(self.save_to)
         return self
 
     def predict(self, x_data):
