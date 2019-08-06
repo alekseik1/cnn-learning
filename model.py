@@ -115,7 +115,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
         return self
 
     def predict(self, x_data):
-        return np.argmax(self.predict_proba(x_data), axis=1)
+        return np.round(self.predict_proba(x_data).reshape(-1))
 
     def predict_proba(self, x_data):
         # NOTE. We do not return decoded pictures for two reasons:
