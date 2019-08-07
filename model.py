@@ -44,21 +44,22 @@ class BagModel(BaseEstimator, ClassifierMixin):
 
         # Split bag into single images to get encoded vectors
         splitted_imgs = SplitBagLayer(bag_size=input_shape[0])(input_img)
-        encoded_img_matrices, encoded_img_vectors = [], []
+        encoded_img_matrices = []
         for single_image in splitted_imgs:
             encoded_img = _attach_to_pipeline(single_image, encoder_pipeline)
 
             encoded_img_matrices.append(encoded_img)
-            encoded_img_vectors.append(
-                # We restore back `bag` dimension in vectors,
-                # so that we'll have list of (batch_dim, 1, prod_dim) tensors
-                Reshape((1, -1))(Flatten()(encoded_img))
-            )
         # We have v=(vec1, ... , vecN) where N is number of images in one bag
         # Now we need to do aggregation
-        concat_matrix = concatenate(encoded_img_vectors, axis=1)
+        concat_matrix = concatenate(
+            [Reshape((1, -1))(
+                Flatten()(img)
+            ) for img in encoded_img_matrices],
+            axis=1)
         # Now we have array with shape (num_vectors, latent_features). Let's aggregate them
         # NOTE: Aggregator is based on maximum
+
+        # THIS IS THE PART WHERE WE LOOSE 1 DIMENSION (dimension of bags)
         aggregator = Lambda(lambda matrix: K.max(matrix, axis=1))(concat_matrix)
 
         # After encoding, we need to classify images
@@ -70,20 +71,15 @@ class BagModel(BaseEstimator, ClassifierMixin):
             Conv2D(64, (3, 3), activation='relu', padding='same'),
             UpSampling2D((2, 2)),
             Conv2D(input_shape[-1], (3, 3), activation='relu', padding='same'),
-            # For convenience, reshape (None, w, h, c) -> (None, 1, w, h, c)
-            # where 'w'=width, 'h'=height, 'c'=color_channel
+            # reshape (None, w, h, c) -> (None, 1, w, h, c) where 'w'=width, 'h'=height, 'c'=color_channel
             Reshape((1, *input_shape[1:]))
         ]
-        # TODO: decoding
         decoded_images = [_attach_to_pipeline(single_image, decoder_pipeline) for single_image in encoded_img_matrices]
         decoded_images = concatenate(decoded_images, axis=1, name='decoded_output')
 
         model = Model(inputs=[input_img], outputs=[classifier, decoded_images])
         model.compile(optimizer=self.optimizer,
-                      # We define loss function for each output
                       loss={'classifier_output': self.classifier_loss, 'decoded_output': self.decoder_loss},
-                      # And resulting loss function will be a weighted sum of all loss functions
-                      # We want weigths 1.0 for all losses (for now, at least)
                       loss_weights={'classifier_output': 1.0, 'decoded_output': 1.0},
                       metrics={'classifier_output': self.classifier_metrics}
                       )
