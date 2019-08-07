@@ -62,7 +62,7 @@ def create_bag(zero_x, nonzero_x, bag_size=100, percentage=0.01):
 
 
 def preprocess_image(x_data):
-    x_data = x_data/256
+    x_data = x_data/np.max(x_data)
     return x_data
 
 
