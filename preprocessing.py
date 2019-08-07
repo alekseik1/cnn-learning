@@ -1,4 +1,3 @@
-from keras.utils import to_categorical
 from sklearn.preprocessing import FunctionTransformer
 import numpy as np
 
@@ -60,12 +59,6 @@ def create_bag(zero_x, nonzero_x, bag_size=100, percentage=0.01):
     result_x = np.concatenate((zero_choice, nonzero_choice))
     result_y = int(percentage == 0)
     return result_x, result_y
-
-
-def preprocess_categories(y_data):
-    num_classes = len(np.unique(y_data))
-    y_data = to_categorical(y_data, num_classes)
-    return y_data
 
 
 def preprocess_image(x_data):
