@@ -3,6 +3,7 @@ from keras import Model
 import keras.backend as K
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import train_test_split
+from utils import SaveCallback
 import numpy as np
 
 from layers import SplitBagLayer, _attach_to_pipeline
@@ -109,6 +110,8 @@ class BagModel(BaseEstimator, ClassifierMixin):
                 batch_size=self.batch_size,
                 shuffle=True,
                 validation_data=(x_val, {'classifier_output': y_val, 'decoded_output': x_val}),
+                callbacks=[SaveCallback(monitor_variable='val_classifier_output_acc',
+                                        model=self.model_, verbose=True)]
             )
         if self.save_to:
             self.model_.save_weights(self.save_to)
