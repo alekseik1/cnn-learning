@@ -1,5 +1,6 @@
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense, Lambda, concatenate, Reshape
 from keras import Model
+from keras.models import load_model
 import keras.backend as K
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import train_test_split
@@ -13,15 +14,14 @@ from layers import SplitBagLayer, _attach_to_pipeline
 class BagModel(BaseEstimator, ClassifierMixin):
 
     def __init__(self,
-                 load_from=None,
+                 load_path=None,
                  optimizer='adadelta',
                  classifier_loss='binary_crossentropy',
                  classifier_activation='sigmoid',
                  decoder_loss='binary_crossentropy',
                  classifier_metrics='accuracy',
                  num_epochs=10,
-                 batch_size=128,
-                 save_to=None):
+                 batch_size=128):
         self.optimizer = optimizer
         self.classifier_loss = classifier_loss
         self.classifier_activation = classifier_activation
@@ -30,8 +30,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.model_ = None
-        self.save_to = save_to
-        self.load_from = load_from
+        self.load_path = load_path
 
     def _create_model(self, input_shape):
         input_img = Input(shape=input_shape)
@@ -97,8 +96,8 @@ class BagModel(BaseEstimator, ClassifierMixin):
         y_train = (y_train > 0).astype(int)
 
         self.model_ = self._create_model(x_train.shape[1:])
-        if self.load_from:
-            self.model_.load_weights(self.load_from)
+        if self.load_path:
+            self.model_ = load_model(self.load_path)
         else:
             # Train it
             self.model_.fit(
@@ -113,8 +112,6 @@ class BagModel(BaseEstimator, ClassifierMixin):
                 callbacks=[SaveCallback(monitor_variable='val_classifier_output_acc',
                                         model=self.model_, verbose=True)]
             )
-        if self.save_to:
-            self.model_.save_weights(self.save_to)
         return self
 
     def predict(self, x_data):
