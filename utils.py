@@ -4,6 +4,7 @@ import os
 import keras
 import numpy as np
 from keras.models import Input
+from datetime import datetime
 from keras import Model
 
 
@@ -47,8 +48,10 @@ class SaveCallback(keras.callbacks.Callback):
         # Check if directory exists
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
+        _datetime = datetime.now().strftime("%d.%m.%Y-%H:%M:%S")
         self.filepath = os.path.join(os.getcwd(), save_dir,
-                                     'model_trained.{epoch:02d}-{%s:.2f}.h5' % monitor_variable)
+                                     '%s-model_trained.{epoch:02d}-{%s:.2f}.h5' % (
+                                         _datetime, monitor_variable))
         self.save_best_only = save_best_only
         self.period = period
         self.epochs_since_last_save = 0
