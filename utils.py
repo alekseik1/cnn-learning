@@ -1,4 +1,5 @@
 import warnings
+import argparse
 from itertools import islice, permutations
 import os
 import keras
@@ -6,6 +7,21 @@ import numpy as np
 from keras.models import Input
 from datetime import datetime
 from keras import Model
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Network to process images')
+    parser.add_argument('--work_dir', type=str, default='trained',
+                        help='directory to save trained model after epochs and load it from.'
+                             'Will be created if not exist')
+    parser.add_argument('--save_best_only', action='store_true',
+                        help='Whether to save only best (by accuracy) weights or everything')
+    parser.add_argument('--epochs', type=int, default=10,
+                        help='number of epochs')
+    parser.add_argument('--verbose', '-v', action='store_true', help='Be more verbose')
+    parser.add_argument('--debug', '-d', action='store_true', help='Debug mode. FOR NOW: affects only weights saver')
+    parser.add_argument('--load_from', help='Filename of model weights to load')
+    return parser.parse_args()
 
 
 def test_layer(layer, data):
@@ -40,18 +56,21 @@ class SaveCallback(keras.callbacks.Callback):
     def __init__(self, model, monitor_variable, verbose=0,
                  save_best_only=True,
                  save_dir='trained',
-                 mode='auto', period=1):
+                 mode='auto', period=1, debug=False):
         super(SaveCallback, self).__init__()
         self.model_to_save = model
         self.monitor_variable = monitor_variable
         self.verbose = verbose
+        self.debug = debug
         # Check if directory exists
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         _datetime = datetime.now().strftime("%d.%m.%Y-%H:%M:%S")
-        self.filepath = os.path.join(os.getcwd(), save_dir,
-                                     '%s-model_trained.{epoch:02d}-{%s:.2f}.h5' % (
-                                         _datetime, monitor_variable))
+        if self.debug:
+            self.filepath = os.path.join(os.getcwd(), save_dir, 'model_trained.h5')
+        else:
+            self.filepath = os.path.join(os.getcwd(), save_dir,
+                                         '%s-model_trained.{epoch:02d}-{%s:.2f}.h5' % (_datetime, monitor_variable))
         self.save_best_only = save_best_only
         self.period = period
         self.epochs_since_last_save = 0

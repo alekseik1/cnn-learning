@@ -1,23 +1,22 @@
 from keras.datasets import mnist
 from preprocessing import ImageScaler, split_into_bags, add_color_channel
-from utils import extend_bags_permutations
+from utils import extend_bags_permutations, parse_args
 from sklearn.pipeline import Pipeline
 from model import BagModel
-
-MODEL_NAME = 'model_trained.h5'
-NUM_EPOCHS = 50
-
-pipeline = Pipeline([
-   ('scaler', ImageScaler()),
-   ('regressor', BagModel(save_to=MODEL_NAME, num_epochs=NUM_EPOCHS))
-])
-
-pipeline_load = Pipeline([
-    ('scaler', ImageScaler()),
-    ('regressor', BagModel(load_from=MODEL_NAME))
-])
+import os
 
 if __name__ == '__main__':
+    args = parse_args()
+
+    pipeline = Pipeline([
+        ('scaler', ImageScaler()),
+        ('regressor', BagModel(num_epochs=args.epochs,
+                               load_path=(os.path.join(os.getcwd(), args.work_dir, args.load_from)
+                                          if args.load_from else None),
+                               verbose=args.verbose,
+                               save_best_only=args.save_best_only, debug=args.debug))
+    ])
+
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
     bags_x, bags_y = split_into_bags(x_train, y_train,
@@ -32,7 +31,5 @@ if __name__ == '__main__':
     bags_x, test_bags_x = add_color_channel(bags_x), add_color_channel(test_bags_x)
     pipeline.fit(bags_x, bags_y)
 
-    # Model loads
-    pipeline_load.fit(bags_x, bags_y)
-    # And score in calculated
-    print('Score on test data: ', pipeline_load.score(test_bags_x, test_bags_y))
+    print('TEST: Score on test data: ', pipeline.score(test_bags_x, test_bags_y))
+    print('TRAIN: Score on test data: ', pipeline.score(bags_x, bags_y))

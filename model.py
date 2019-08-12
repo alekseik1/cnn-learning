@@ -21,7 +21,10 @@ class BagModel(BaseEstimator, ClassifierMixin):
                  decoder_loss='binary_crossentropy',
                  classifier_metrics='accuracy',
                  num_epochs=10,
-                 batch_size=128):
+                 batch_size=128,
+                 verbose=False,
+                 save_best_only=True,
+                 debug=False):
         self.optimizer = optimizer
         self.classifier_loss = classifier_loss
         self.classifier_activation = classifier_activation
@@ -31,6 +34,9 @@ class BagModel(BaseEstimator, ClassifierMixin):
         self.batch_size = batch_size
         self.model_ = None
         self.load_path = load_path
+        self.verbose = verbose
+        self.save_best_only = save_best_only
+        self.debug = debug
 
     def _create_model(self, input_shape):
         input_img = Input(shape=input_shape)
@@ -110,7 +116,8 @@ class BagModel(BaseEstimator, ClassifierMixin):
                 shuffle=True,
                 validation_data=(x_val, {'classifier_output': y_val, 'decoded_output': x_val}),
                 callbacks=[SaveCallback(monitor_variable='val_classifier_output_acc',
-                                        model=self.model_, verbose=True)]
+                                        model=self.model_, verbose=self.verbose,
+                                        save_best_only=self.save_best_only, debug=self.debug)]
             )
         return self
 
