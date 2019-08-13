@@ -1,10 +1,11 @@
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense, Lambda, concatenate, Reshape
 from keras import Model
 from keras.models import load_model
+from keras.callbacks import TensorBoard
 import keras.backend as K
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import train_test_split
-from utils import SaveCallback
+from utils import SaveCallback, ensure_folder
 import numpy as np
 
 from layers import SplitBagLayer, _attach_to_pipeline
@@ -24,7 +25,8 @@ class BagModel(BaseEstimator, ClassifierMixin):
                  batch_size=128,
                  verbose=False,
                  save_best_only=True,
-                 debug=False):
+                 debug=False,
+                 tensorboard_dir=None):
         self.optimizer = optimizer
         self.classifier_loss = classifier_loss
         self.classifier_activation = classifier_activation
@@ -37,6 +39,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
         self.verbose = verbose
         self.save_best_only = save_best_only
         self.debug = debug
+        self.tensorboard_dir = tensorboard_dir
 
     def _create_model(self, input_shape):
         input_img = Input(shape=input_shape)
@@ -102,6 +105,12 @@ class BagModel(BaseEstimator, ClassifierMixin):
         y_train = (y_train > 0).astype(int)
 
         self.model_ = self._create_model(x_train.shape[1:])
+        callbacks = [SaveCallback(monitor_variable='val_classifier_output_acc',
+                                  model=self.model_, verbose=self.verbose,
+                                  save_best_only=self.save_best_only, debug=self.debug)]
+        if self.tensorboard_dir:
+            ensure_folder(self.tensorboard_dir)
+            callbacks.append(TensorBoard(log_dir=self.tensorboard_dir))
         if self.load_path:
             self.model_ = load_model(self.load_path)
         else:
@@ -115,9 +124,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
                 batch_size=self.batch_size,
                 shuffle=True,
                 validation_data=(x_val, {'classifier_output': y_val, 'decoded_output': x_val}),
-                callbacks=[SaveCallback(monitor_variable='val_classifier_output_acc',
-                                        model=self.model_, verbose=self.verbose,
-                                        save_best_only=self.save_best_only, debug=self.debug)]
+                callbacks=callbacks
             )
         return self
 

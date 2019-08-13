@@ -14,7 +14,8 @@ if __name__ == '__main__':
                                load_path=(os.path.join(os.getcwd(), args.work_dir, args.load_from)
                                           if args.load_from else None),
                                verbose=args.verbose,
-                               save_best_only=args.save_best_only, debug=args.debug))
+                               save_best_only=args.save_best_only, tensorboard_dir=args.tensorboard_dir,
+                               debug=args.debug))
     ])
 
     (x_train, y_train), (x_test, y_test) = mnist.load_data()

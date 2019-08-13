@@ -21,6 +21,7 @@ def parse_args():
     parser.add_argument('--verbose', '-v', action='store_true', help='Be more verbose')
     parser.add_argument('--debug', '-d', action='store_true', help='Debug mode. FOR NOW: affects only weights saver')
     parser.add_argument('--load_from', help='Filename of model weights to load')
+    parser.add_argument('--tensorboard_dir', help='Directory to store tensorboard logs')
     return parser.parse_args()
 
 
@@ -47,6 +48,12 @@ def extend_bags_permutations(x_bags, labels, total_num=100):
     return np.array(result_x), np.array(result_y)
 
 
+def ensure_folder(path):
+    import os
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
 class SaveCallback(keras.callbacks.Callback):
     """
         Adapted code from: https://github.com/keras-team/keras/blob/master/keras/callbacks.py
@@ -63,8 +70,7 @@ class SaveCallback(keras.callbacks.Callback):
         self.verbose = verbose
         self.debug = debug
         # Check if directory exists
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+        ensure_folder(save_dir)
         _datetime = datetime.now().strftime("%d.%m.%Y-%H:%M:%S")
         if self.debug:
             self.filepath = os.path.join(os.getcwd(), save_dir, 'model_trained.h5')
