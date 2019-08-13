@@ -12,7 +12,7 @@ from keras import Model
 def parse_args():
     parser = argparse.ArgumentParser(description='Network to process images')
     parser.add_argument('--work_dir', type=str, default='trained',
-                        help='directory to save trained model after epochs and load it from.'
+                        help='directory to save trained model after epochs and load it from. '
                              'Will be created if not exist')
     parser.add_argument('--save_best_only', action='store_true',
                         help='Whether to save only best (by accuracy) weights or everything')
