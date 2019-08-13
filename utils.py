@@ -10,11 +10,11 @@ def parse_args():
                              'Will be created if not exist')
     parser.add_argument('--save_best_only', action='store_true',
                         help='Whether to save only best (by accuracy) weights or everything')
-    parser.add_argument('--epochs', type=int, default=10,
+    parser.add_argument('--epochs', '-e', type=int, default=10,
                         help='number of epochs')
     parser.add_argument('--verbose', '-v', action='store_true', help='Be more verbose')
     parser.add_argument('--debug', '-d', action='store_true', help='Debug mode. FOR NOW: affects only weights saver')
-    parser.add_argument('--load_from', help='Filename of model weights to load')
+    parser.add_argument('--load_from', '-l', help='Filename of model weights to load')
     parser.add_argument('--tensorboard_dir', help='Directory to store tensorboard logs')
     return parser.parse_args()
 
@@ -48,3 +48,26 @@ def ensure_folder(path):
     import os
     if not os.path.exists(path):
         os.makedirs(path)
+
+
+def load_mnist_bags(bag_size):
+    (x_train, y_train), (x_test, y_test) = load_mnist()
+    x_train = extend_rotations(x_train, multiply_by=BAG_SIZE//10)
+
+    bags_x, bags_y = split_into_bags(x_train, y_train,
+                                     bag_size=bag_size,
+                                     zero_bags_percent=0.5,
+                                     zeros_in_bag_percentage=0.05)
+    test_bags_x, test_bags_y = split_into_bags(x_test, y_test,
+                                               bag_size=bag_size,
+                                               zero_bags_percent=0.5,
+                                               zeros_in_bag_percentage=0.05)
+    return (bags_x, bags_y), (test_bags_x, test_bags_y)
+
+
+def load_mnist():
+    from keras.datasets import mnist
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+    x_train, x_test = add_color_channel(x_train), add_color_channel(x_test)
+    return (x_train, y_train), (x_test, y_test)
