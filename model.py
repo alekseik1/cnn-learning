@@ -5,9 +5,9 @@ from keras.callbacks import TensorBoard
 import keras.backend as K
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import train_test_split
-from utils import SaveCallback, ensure_folder
+from utils import ensure_folder
+from callbacks import SaveCallback
 import numpy as np
-
 from layers import SplitBagLayer, _attach_to_pipeline
 
 

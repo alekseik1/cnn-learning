@@ -1,8 +1,5 @@
-from keras.datasets import mnist
-from preprocessing import ImageScaler, split_into_bags, add_color_channel, extend_rotations
 from utils import parse_args
 from sklearn.pipeline import Pipeline
-from model import BagModel
 import os
 
 BAG_SIZE = 100
@@ -10,6 +7,8 @@ BAG_SIZE = 100
 if __name__ == '__main__':
     args = parse_args()
 
+    from model import BagModel
+    from preprocessing import ImageScaler, split_into_bags, add_color_channel, extend_rotations
     pipeline = Pipeline([
         ('scaler', ImageScaler()),
         ('regressor', BagModel(num_epochs=args.epochs,
@@ -20,6 +19,7 @@ if __name__ == '__main__':
                                debug=args.debug))
     ])
 
+    from keras.datasets import mnist
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     x_train, x_test = add_color_channel(x_train), add_color_channel(x_test)
     x_train = extend_rotations(x_train, multiply_by=BAG_SIZE//10)
