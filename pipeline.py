@@ -1,9 +1,11 @@
 from keras.datasets import mnist
-from preprocessing import ImageScaler, split_into_bags, add_color_channel
-from utils import extend_bags_permutations, parse_args
+from preprocessing import ImageScaler, split_into_bags, add_color_channel, extend_rotations
+from utils import parse_args
 from sklearn.pipeline import Pipeline
 from model import BagModel
 import os
+
+BAG_SIZE = 100
 
 if __name__ == '__main__':
     args = parse_args()
@@ -19,17 +21,17 @@ if __name__ == '__main__':
     ])
 
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    x_train, x_test = add_color_channel(x_train), add_color_channel(x_test)
+    x_train = extend_rotations(x_train, multiply_by=BAG_SIZE//10)
 
     bags_x, bags_y = split_into_bags(x_train, y_train,
-                                     bag_size=100,
+                                     bag_size=BAG_SIZE,
                                      zero_bags_percent=0.5,
                                      zeros_in_bag_percentage=0.05)
-    bags_x, bags_y = extend_bags_permutations(bags_x, bags_y, total_num=10)
     test_bags_x, test_bags_y = split_into_bags(x_test, y_test,
-                                               bag_size=100,
+                                               bag_size=BAG_SIZE,
                                                zero_bags_percent=0.5,
                                                zeros_in_bag_percentage=0.05)
-    bags_x, test_bags_x = add_color_channel(bags_x), add_color_channel(test_bags_x)
     pipeline.fit(bags_x, bags_y)
 
     print('TEST: Score on test data: ', pipeline.score(test_bags_x, test_bags_y))
