@@ -17,14 +17,14 @@ class Config:
 class DebugConfig(Config):
     debug = True
     verbose = True
+    epochs = 10
     load_from = 'model_trained.h5'
     bag_size = 5
-    diseased_dir = '/Users/akoyharin/Desktop/diseased_debug'
-    healthy_dir = '/Users/akoyharin/Desktop/healthy_debug'
+    diseased_dir = 'debug_imgs/diseased'
+    healthy_dir = 'debug_imgs/healthy'
 
 
 class ProductionConfig(Config):
-    debug = True
-    epochs = 10
+    epochs = 50
     diseased_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.01/diseased/1'
     healthy_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.01/control/1'
