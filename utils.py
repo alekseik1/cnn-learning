@@ -1,6 +1,11 @@
 import argparse
+import logging
 import numpy as np
 from config import ProductionConfig, DebugConfig
+
+# TODO: configure me based on verbosity level
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def split_into_bags(array, bag_size):
@@ -54,5 +59,6 @@ def get_best_bag_size(arr1: np.ndarray, arr2: np.ndarray):
     curr = min(arr1.shape[0], arr2.shape[0])//10
     while curr > 0:
         if arr1.shape[0] % curr == 0 and arr2.shape[0] % curr == 0:
+            logger.info('Found best bag size: {}'.format(curr))
             return curr
         curr -= 1
