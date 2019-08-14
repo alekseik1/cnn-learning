@@ -2,10 +2,6 @@ import argparse
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-# TODO: move to argparse
-DISEASED_FOLDER = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.01/diseased/1'
-HEALTHY_FOLDER = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.01/control/1'
-
 
 def get_paths_list(filepath, mask):
     import glob
@@ -52,6 +48,8 @@ def parse_args():
     parser.add_argument('--load_from', '-l', help='Filename of model weights to load')
     parser.add_argument('--tensorboard_dir', help='Directory to store tensorboard logs')
     parser.add_argument('--bag_size', help='Size of a bag')
+    parser.add_argument('--diseased_dir', help='path to diseased images')
+    parser.add_argument('--healthy_dir', help='path to healthy images')
     return parser.parse_args()
 
 
@@ -73,8 +71,8 @@ def ensure_folder(path):
 def load_data(args):
     # TODO: better logging
     print('started loading data...')
-    diseased_paths, diseased_imgs = load_images(DISEASED_FOLDER)
-    healthy_paths, healthy_imgs = load_images(HEALTHY_FOLDER)
+    diseased_paths, diseased_imgs = load_images(args.diseased_dir)
+    healthy_paths, healthy_imgs = load_images(args.healthy_dir)
 
     print('splitting into bags...')
     diseased_bag_x = split_into_bags(diseased_imgs, int(args.bag_size))
@@ -86,6 +84,6 @@ def load_data(args):
                              np.concatenate((diseased_bag_y, healthy_bag_y))
 
     print('making train-test-split...')
-    (train_bags_x, train_bags_y), (test_bags_x, test_bags_y) = train_test_split(all_bags_x, all_bags_y)
+    train_bags_x, train_bags_y, test_bags_x, test_bags_y = train_test_split(all_bags_x, all_bags_y)
 
     return (train_bags_x, train_bags_y), (test_bags_x, test_bags_y)
