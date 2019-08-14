@@ -1,6 +1,7 @@
 import argparse
 import numpy as np
 from sklearn.model_selection import train_test_split
+from config import ProductionConfig, DebugConfig
 
 
 def get_paths_list(filepath, mask):
@@ -36,6 +37,7 @@ def split_into_bags(array, bag_size):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Network to process images')
+    parser.add_argument('--config', action='store_true', help='load settings from config file')
     parser.add_argument('--work_dir', type=str, default='trained',
                         help='directory to save trained model after epochs and load it from. '
                              'Will be created if not exist')
@@ -49,9 +51,12 @@ def parse_args():
     parser.add_argument('--tensorboard_dir', '--tb_dir',
                         dest='tensorboard_dir', help='directory to store tensorboard logs')
     parser.add_argument('--bag_size', default='auto', help='size of a bag')
-    parser.add_argument('--diseased_dir', required=True, help='path to diseased images')
-    parser.add_argument('--healthy_dir', required=True, help='path to healthy images')
-    return parser.parse_args()
+    parser.add_argument('--diseased_dir', help='path to diseased images')
+    parser.add_argument('--healthy_dir', help='path to healthy images')
+    args = parser.parse_args()
+    if args.config:
+        return DebugConfig if args.debug else ProductionConfig
+    return args
 
 
 def test_layer(layer, data):
