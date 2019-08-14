@@ -40,14 +40,15 @@ def parse_args():
                         help='directory to save trained model after epochs and load it from. '
                              'Will be created if not exist')
     parser.add_argument('--save_best_only', action='store_true',
-                        help='Whether to save only best (by accuracy) weights or everything')
+                        help='whether to save only best (by accuracy) weights or everything')
     parser.add_argument('--epochs', '-e', type=int, default=10,
                         help='number of epochs')
-    parser.add_argument('--verbose', '-v', action='store_true', help='Be more verbose')
-    parser.add_argument('--debug', '-d', action='store_true', help='Debug mode. FOR NOW: affects only weights saver')
-    parser.add_argument('--load_from', '-l', help='Filename of model weights to load')
-    parser.add_argument('--tensorboard_dir', help='Directory to store tensorboard logs')
-    parser.add_argument('--bag_size', type=int, help='Size of a bag')
+    parser.add_argument('--verbose', '-v', action='store_true', help='be more verbose')
+    parser.add_argument('--debug', '-d', action='store_true', help='debug mode. FOR NOW: affects only weights saver')
+    parser.add_argument('--load_from', '-l', help='filename of model weights to load')
+    parser.add_argument('--tensorboard_dir', '--tb_dir',
+                        dest='tensorboard_dir', help='directory to store tensorboard logs')
+    parser.add_argument('--bag_size', type=int, help='size of a bag')
     parser.add_argument('--diseased_dir', help='path to diseased images')
     parser.add_argument('--healthy_dir', help='path to healthy images')
     return parser.parse_args()
