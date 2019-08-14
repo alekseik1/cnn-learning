@@ -1,6 +1,41 @@
 import argparse
-from itertools import islice, permutations
 import numpy as np
+from sklearn.model_selection import train_test_split
+
+# TODO: move to argparse
+DISEASED_FOLDER = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.01/diseased/1'
+HEALTHY_FOLDER = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.01/control/1'
+
+
+def get_paths_list(filepath, mask):
+    import glob
+    import os
+    path = os.path.join(filepath, mask)
+    return glob.glob(path)
+
+
+def load_images(filepath, mask='*.png'):
+    """
+    Loads all images from folder
+
+    :param filepath: folder, containing images. Non-image files
+    :param mask: regexp for image search, e.g. '*.png'
+    :return: (paths_list, ndarray_imgs) -- list of paths and numpy array of images
+    """
+    import random
+    from skimage.io import imread
+    images_paths = get_paths_list(filepath, mask)
+    random.shuffle(images_paths)
+    result = []
+    for path in images_paths:
+        result.append(np.array(imread(path)))
+    return images_paths, np.array(result)
+
+
+def split_into_bags(array, bag_size):
+    if array.shape[0] % bag_size != 0:
+        raise ValueError("Length {} of array can't be by {}".format(len(array), bag_size))
+    return np.reshape(array, (-1, bag_size, *array.shape[1:]))
 
 
 def parse_args():
@@ -16,6 +51,7 @@ def parse_args():
     parser.add_argument('--debug', '-d', action='store_true', help='Debug mode. FOR NOW: affects only weights saver')
     parser.add_argument('--load_from', '-l', help='Filename of model weights to load')
     parser.add_argument('--tensorboard_dir', help='Directory to store tensorboard logs')
+    parser.add_argument('--bag_size', help='Size of a bag')
     return parser.parse_args()
 
 
@@ -28,46 +64,28 @@ def test_layer(layer, data):
     return model.predict(data)
 
 
-def extend_bags_permutations(x_bags, labels, total_num=100):
-    """
-    Shuffles elements in each bag, and then returns the dataset extended by permutations
-    :param x_bags: original bags to permutate
-    :param labels: labels corresponding to bags
-    :param total_num: total numbers of permutations for each bag
-    :return: (x_bags_new, y_labels_new) -- extended array of bags and corresponding labels
-    """
-    result_x, result_y = [], []
-    for i in range(len(x_bags)):
-        perms = list(islice(permutations(x_bags[i]), total_num))
-        result_x.extend(perms)
-        result_y.extend([labels[i] for _ in range(len(perms))])
-    return np.array(result_x), np.array(result_y)
-
-
 def ensure_folder(path):
     import os
     if not os.path.exists(path):
         os.makedirs(path)
 
 
-def load_mnist_bags(bag_size):
-    (x_train, y_train), (x_test, y_test) = load_mnist()
-    x_train = extend_rotations(x_train, multiply_by=BAG_SIZE//10)
+def load_data(args):
+    # TODO: better logging
+    print('started loading data...')
+    diseased_paths, diseased_imgs = load_images(DISEASED_FOLDER)
+    healthy_paths, healthy_imgs = load_images(HEALTHY_FOLDER)
 
-    bags_x, bags_y = split_into_bags(x_train, y_train,
-                                     bag_size=bag_size,
-                                     zero_bags_percent=0.5,
-                                     zeros_in_bag_percentage=0.05)
-    test_bags_x, test_bags_y = split_into_bags(x_test, y_test,
-                                               bag_size=bag_size,
-                                               zero_bags_percent=0.5,
-                                               zeros_in_bag_percentage=0.05)
-    return (bags_x, bags_y), (test_bags_x, test_bags_y)
+    print('splitting into bags...')
+    diseased_bag_x = split_into_bags(diseased_imgs, int(args.bag_size))
+    diseased_bag_y = np.zeros(len(diseased_bag_x))
 
+    healthy_bag_x = split_into_bags(healthy_imgs, int(args.bag_size))
+    healthy_bag_y = np.ones(len(healthy_bag_x))
+    all_bags_x, all_bags_y = np.concatenate((diseased_bag_x, healthy_bag_x)), \
+                             np.concatenate((diseased_bag_y, healthy_bag_y))
 
-def load_mnist():
-    from keras.datasets import mnist
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    print('making train-test-split...')
+    (train_bags_x, train_bags_y), (test_bags_x, test_bags_y) = train_test_split(all_bags_x, all_bags_y)
 
-    x_train, x_test = add_color_channel(x_train), add_color_channel(x_test)
-    return (x_train, y_train), (x_test, y_test)
+    return (train_bags_x, train_bags_y), (test_bags_x, test_bags_y)
