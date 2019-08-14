@@ -99,7 +99,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
         # TODO: Validation of parameters
         # Train/validation split
         x_train, x_val, y_train, y_val = train_test_split(x_train, y_train,
-                                                          test_size=0.2, random_state=42)
+                                                          test_size=0.4, random_state=42)
 
         # NOTE: we make category matrix from y_train here!
         y_train = (y_train > 0).astype(int)

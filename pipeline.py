@@ -1,4 +1,5 @@
-from utils import parse_args, load_and_split_data
+from utils import parse_args
+from image_loader import load_and_split_data
 from sklearn.pipeline import Pipeline
 import os
 

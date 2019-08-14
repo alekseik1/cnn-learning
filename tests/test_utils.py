@@ -16,16 +16,8 @@ class BasicUtilsTest(unittest.TestCase):
 
     def test_get_best_bag_size(self):
         self.assertEqual(3, get_best_bag_size(
-            np.ones(4*28*28*1).reshape((4, 28, 28, 1)),
-            np.ones(5*28*28*1).reshape((5, 28, 28, 1))
-        ))
-        self.assertEqual(5, get_best_bag_size(
-            np.ones(4*28*28*1).reshape((4, 28, 28, 1)),
-            np.ones(6*28*28*1).reshape((6, 28, 28, 1))
-        ))
-        self.assertEqual(4, get_best_bag_size(
-            np.ones(3*28*28*1).reshape((3, 28, 28, 1)),
-            np.ones(5*28*28*1).reshape((5, 28, 28, 1))
+            np.ones(30*28*28*1).reshape((30, 28, 28, 1)),
+            np.ones(30*28*28*1).reshape((30, 28, 28, 1))
         ))
 
     def test_ensure_folder_create(self):

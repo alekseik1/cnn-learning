@@ -18,6 +18,7 @@ class DebugConfig(Config):
     debug = True
     verbose = True
     load_from = 'model_trained.h5'
+    bag_size = 5
     diseased_dir = '/Users/akoyharin/Desktop/diseased_debug'
     healthy_dir = '/Users/akoyharin/Desktop/healthy_debug'
 
