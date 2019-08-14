@@ -48,9 +48,9 @@ def parse_args():
     parser.add_argument('--load_from', '-l', help='filename of model weights to load')
     parser.add_argument('--tensorboard_dir', '--tb_dir',
                         dest='tensorboard_dir', help='directory to store tensorboard logs')
-    parser.add_argument('--bag_size', type=int, help='size of a bag')
-    parser.add_argument('--diseased_dir', help='path to diseased images')
-    parser.add_argument('--healthy_dir', help='path to healthy images')
+    parser.add_argument('--bag_size', default='auto', help='size of a bag')
+    parser.add_argument('--diseased_dir', required=True, help='path to diseased images')
+    parser.add_argument('--healthy_dir', required=True, help='path to healthy images')
     return parser.parse_args()
 
 
@@ -69,11 +69,23 @@ def ensure_folder(path):
         os.makedirs(path)
 
 
+def get_best_bag_size(arr1, arr2):
+    length = arr1.shape[0] + arr2.shape[0]
+    for i in range(length-1, 0, -1):
+        if length % i == 0:
+            if i == 1:
+                return length
+            return i
+
+
 def load_and_split_data(args):
     # TODO: better logging
     print('started loading data...')
     diseased_paths, diseased_imgs = load_images(args.diseased_dir)
     healthy_paths, healthy_imgs = load_images(args.healthy_dir)
+
+    args.bag_size = (get_best_bag_size(diseased_imgs, healthy_imgs) if args.bag_size == 'auto'
+                     else int(args.bag_size))
 
     print('splitting into bags...')
     diseased_bag_x = split_into_bags(diseased_imgs, args.bag_size)
