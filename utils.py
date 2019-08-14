@@ -30,6 +30,8 @@ def parse_args():
     args = parser.parse_args()
     if args.config:
         return DebugConfig if args.debug else ProductionConfig
+    elif not args.diseased_dir or not args.healthy_dir:
+        raise argparse.ArgumentError('You should either give --config or provide both --diseased_dir and --healthy_dir')
     return args
 
 
