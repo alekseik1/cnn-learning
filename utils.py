@@ -47,7 +47,7 @@ def parse_args():
     parser.add_argument('--debug', '-d', action='store_true', help='Debug mode. FOR NOW: affects only weights saver')
     parser.add_argument('--load_from', '-l', help='Filename of model weights to load')
     parser.add_argument('--tensorboard_dir', help='Directory to store tensorboard logs')
-    parser.add_argument('--bag_size', help='Size of a bag')
+    parser.add_argument('--bag_size', type=int, help='Size of a bag')
     parser.add_argument('--diseased_dir', help='path to diseased images')
     parser.add_argument('--healthy_dir', help='path to healthy images')
     return parser.parse_args()
@@ -75,10 +75,10 @@ def load_data(args):
     healthy_paths, healthy_imgs = load_images(args.healthy_dir)
 
     print('splitting into bags...')
-    diseased_bag_x = split_into_bags(diseased_imgs, int(args.bag_size))
+    diseased_bag_x = split_into_bags(diseased_imgs, args.bag_size)
     diseased_bag_y = np.zeros(len(diseased_bag_x))
 
-    healthy_bag_x = split_into_bags(healthy_imgs, int(args.bag_size))
+    healthy_bag_x = split_into_bags(healthy_imgs, args.bag_size)
     healthy_bag_y = np.ones(len(healthy_bag_x))
     all_bags_x, all_bags_y = np.concatenate((diseased_bag_x, healthy_bag_x)), \
                              np.concatenate((diseased_bag_y, healthy_bag_y))
