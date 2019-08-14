@@ -69,7 +69,7 @@ def ensure_folder(path):
         os.makedirs(path)
 
 
-def load_data(args):
+def load_and_split_data(args):
     # TODO: better logging
     print('started loading data...')
     diseased_paths, diseased_imgs = load_images(args.diseased_dir)

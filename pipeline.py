@@ -1,4 +1,4 @@
-from utils import parse_args, load_data
+from utils import parse_args, load_and_split_data
 from sklearn.pipeline import Pipeline
 import os
 
@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
     from model import BagModel
     from preprocessing import ImageScaler
-    (train_bags_x, train_bags_y), (test_bags_x, test_bags_y) = load_data(args)
+    (train_bags_x, train_bags_y), (test_bags_x, test_bags_y) = load_and_split_data(args)
 
     pipeline = Pipeline([
         ('scaler', ImageScaler()),
