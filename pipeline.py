@@ -13,6 +13,7 @@ if __name__ == '__main__':
     pipeline = Pipeline([
         ('scaler', ImageScaler()),
         ('regressor', BagModel(num_epochs=args.epochs,
+                               # TODO: rename to `load_weights`
                                load_path=(os.path.join(os.getcwd(), args.work_dir, args.load_from)
                                           if args.load_from else None),
                                verbose=args.verbose,
