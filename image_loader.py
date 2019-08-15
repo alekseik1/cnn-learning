@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
-from utils import get_best_bag_size, split_into_bags, logger
+from preprocessing import extend_to_bagsize
+from utils import split_into_bags, logger
 
 
 def load_and_split_data(args):
@@ -22,8 +23,8 @@ def load_and_split_data(args):
         healthy_imgs = add_color_channel(healthy_imgs)
         logger.info('color channel added for healthy images')
 
-    args.bag_size = (get_best_bag_size(diseased_imgs, healthy_imgs) if args.bag_size == 'auto'
-                     else int(args.bag_size))
+    diseased_imgs = extend_to_bagsize(args.bag_size, diseased_imgs)
+    healthy_imgs = extend_to_bagsize(args.bag_size, healthy_imgs)
 
     logger.info('splitting into bags...')
     diseased_bag_x = split_into_bags(diseased_imgs, args.bag_size)

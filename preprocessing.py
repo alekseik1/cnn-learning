@@ -1,4 +1,5 @@
 from sklearn.preprocessing import FunctionTransformer
+from utils import logger
 import numpy as np
 
 
@@ -13,13 +14,25 @@ def rotate_image(img):
     return img
 
 
-def extend_rotations(data, multiply_by):
-    result = data
-    for i in range(multiply_by - 1):
-        tmp = [rotate_image(img) for img in data]
-        result = np.concatenate((result, np.array(tmp)))
-        print('finished iteration {}'.format(i + 1))
-    return result
+def extend_to_bagsize(bagsize: int, raw_images: np.ndarray):
+    """
+    Extends array of imgs by rotating its first elements so that array's length will be divisible by `bagsize`.
+    Note that it can only multiply images by 8 (4 rotations + 1 flip)
+    :param bagsize:
+    :param raw_images:
+    :raise: ValueError if it is impossible to extend array to fit `bagsize`
+    :return: extended array
+    """
+    rotations_num = bagsize - (len(raw_images) % bagsize)
+    if rotations_num > 8*len(raw_images):
+        raise ValueError('Cannot extend images by only rotating and flipping. Bag size is too big')
+    logger.info('need to add {} images'.format(rotations_num))
+    for i in range(rotations_num):
+        raw_images = np.concatenate((
+            raw_images,
+            rotate_image(raw_images[i]).reshape(1, *raw_images.shape[1:])
+        ))
+    return raw_images
 
 
 def preprocess_image(x_data):

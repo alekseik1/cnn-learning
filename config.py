@@ -9,7 +9,7 @@ class Config:
     debug = False
     load_from = None
     tensorboard_dir = 'tlogs'
-    bag_size = 'auto'
+    bag_size = 50
     diseased_dir = 'diseased_imgs'
     healthy_dir = 'healthy_imgs'
 
@@ -19,7 +19,6 @@ class DebugConfig(Config):
     verbose = True
     epochs = 10
     load_from = 'model_trained.h5'
-    bag_size = 5
     diseased_dir = 'debug_imgs/diseased'
     healthy_dir = 'debug_imgs/healthy'
 

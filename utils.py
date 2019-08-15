@@ -29,7 +29,7 @@ def parse_args():
     parser.add_argument('--load_from', '-l', help='filename of model weights to load')
     parser.add_argument('--tensorboard_dir', '--tb_dir',
                         dest='tensorboard_dir', help='directory to store tensorboard logs')
-    parser.add_argument('--bag_size', default='auto', help='size of a bag')
+    parser.add_argument('--bag_size', type=int, default=50, help='size of a bag')
     parser.add_argument('--diseased_dir', help='path to diseased images')
     parser.add_argument('--healthy_dir', help='path to healthy images')
     args = parser.parse_args()
