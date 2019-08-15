@@ -1,4 +1,5 @@
 import numpy as np
+from preprocessing import rotate_image
 
 
 def add_color_channel(x_data):
@@ -58,3 +59,12 @@ def create_bag(zero_x, nonzero_x, bag_size=100, percentage=0.01):
     result_x = np.concatenate((zero_choice, nonzero_choice))
     result_y = int(percentage == 0)
     return result_x, result_y
+
+
+def extend_rotations(data, multiply_by):
+    result = data
+    for i in range(multiply_by - 1):
+        tmp = [rotate_image(img) for img in data]
+        result = np.concatenate((result, np.array(tmp)))
+        print('finished iteration {}'.format(i + 1))
+    return result

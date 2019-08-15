@@ -1,25 +1,4 @@
-from itertools import islice, permutations
-
-import numpy as np
-
-from mnist.preprocessing import mnist_split_into_bags, add_color_channel
-from preprocessing import extend_rotations
-
-
-def extend_bags_permutations(x_bags, labels, total_num=100):
-    """
-    Shuffles elements in each bag, and then returns the dataset extended by permutations
-    :param x_bags: original bags to permutate
-    :param labels: labels corresponding to bags
-    :param total_num: total numbers of permutations for each bag
-    :return: (x_bags_new, y_labels_new) -- extended array of bags and corresponding labels
-    """
-    result_x, result_y = [], []
-    for i in range(len(x_bags)):
-        perms = list(islice(permutations(x_bags[i]), total_num))
-        result_x.extend(perms)
-        result_y.extend([labels[i] for _ in range(len(perms))])
-    return np.array(result_x), np.array(result_y)
+from mnist.preprocessing import mnist_split_into_bags, add_color_channel, extend_rotations
 
 
 def load_mnist_bags(bag_size):
