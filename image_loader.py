@@ -7,10 +7,10 @@ from utils import split_into_bags, logger
 def load_and_split_data(args):
     # TODO: better logging
     logger.info('started loading diseased images...')
-    diseased_paths, diseased_imgs = load_images(args.diseased_dir)
+    diseased_paths, diseased_imgs = load_images(args.diseased_dir, load_part=args.load_part)
     logger.info('diseased images are loaded')
     logger.info('started loading healthy images...')
-    healthy_paths, healthy_imgs = load_images(args.healthy_dir)
+    healthy_paths, healthy_imgs = load_images(args.healthy_dir, load_part=args.load_part)
     logger.info('healthy images are loaded')
     if len(diseased_imgs.shape) == 3:
         logger.info('adding color channels to diseased images...')
@@ -52,6 +52,7 @@ def load_images(filepath, mask='*.png', load_part=1.0):
 
     :param filepath: folder, containing images. Non-image files
     :param mask: regexp for image search, e.g. '*.png'
+    :param load_part: only only part of all images. 1.0 by default, meaning all images are loaded
     :return: (paths_list, ndarray_imgs) -- list of paths and numpy array of images
     """
     import random
