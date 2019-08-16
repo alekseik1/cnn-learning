@@ -17,6 +17,7 @@ if __name__ == '__main__':
                                load_path=(os.path.join(os.getcwd(), args.work_dir, args.load_from)
                                           if args.load_from else None),
                                verbose=args.verbose,
+                               batch_size=args.batch_size,
                                save_best_only=args.save_best_only, tensorboard_dir=args.tensorboard_dir,
                                debug=args.debug))
     ])

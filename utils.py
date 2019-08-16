@@ -36,6 +36,7 @@ def parse_args():
     parser.add_argument('--bag_size', type=int, default=50, help='size of a bag')
     parser.add_argument('--diseased_dir', help='path to diseased images')
     parser.add_argument('--healthy_dir', help='path to healthy images')
+    parser.add_argument('--batch_size', type=int, default=128, help='size of one batch during training. 128 by default')
     parser.add_argument('--load_part', type=float, default=1.0, help='load only part of all images. '
                                                                      '1 by default, all images are loaded')
     args = parser.parse_args()
