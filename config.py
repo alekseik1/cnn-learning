@@ -7,6 +7,7 @@ class Config:
     epochs = 10
     verbose = False
     debug = False
+    load_part = 1.0
     load_from = None
     tensorboard_dir = 'tlogs'
     bag_size = 50
