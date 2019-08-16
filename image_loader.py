@@ -14,12 +14,12 @@ def load_and_split_data(args):
     logger.info('healthy images are loaded')
     if len(diseased_imgs.shape) == 3:
         logger.info('adding color channels to diseased images...')
-        from mnist.preprocessing import add_color_channel
+        from utils import add_color_channel
         diseased_imgs = add_color_channel(diseased_imgs)
         logger.info('color channel added for diseased images')
     if len(healthy_imgs.shape) == 3:
         logger.info('adding color channels to diseased images...')
-        from mnist.preprocessing import add_color_channel
+        from utils import add_color_channel
         healthy_imgs = add_color_channel(healthy_imgs)
         logger.info('color channel added for healthy images')
 

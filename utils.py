@@ -8,6 +8,10 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def add_color_channel(x_data):
+    return x_data.reshape(*x_data.shape, 1)
+
+
 def split_into_bags(array, bag_size):
     if array.shape[0] % bag_size != 0:
         raise ValueError("Length {} of array can't be by {}".format(len(array), bag_size))
