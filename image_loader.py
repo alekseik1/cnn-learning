@@ -46,7 +46,7 @@ def load_and_split_data(args):
     return (train_bags_x, train_bags_y), (test_bags_x, test_bags_y)
 
 
-def load_images(filepath, mask='*.png'):
+def load_images(filepath, mask='*.png', load_part=1.0):
     """
     Loads all images from folder
 
@@ -59,6 +59,7 @@ def load_images(filepath, mask='*.png'):
     images_paths = get_paths_list(filepath, mask)
     logger.info('got images paths...')
     random.shuffle(images_paths)
+    images_paths = images_paths[0:int(len(images_paths)*load_part)]
     result = []
     i, N = 1, 100
     for path in images_paths:
