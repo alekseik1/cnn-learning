@@ -11,6 +11,7 @@ class Config:
     load_from = None
     tensorboard_dir = 'tlogs'
     bag_size = 50
+    batch_size = 10
     diseased_dir = 'diseased_imgs'
     healthy_dir = 'healthy_imgs'
 
