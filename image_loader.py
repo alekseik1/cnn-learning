@@ -6,6 +6,78 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from skimage.io import imread
 import glob
 import os
+from keras.preprocessing.image import ImageDataGenerator
+
+
+class KerasImageLoader:
+
+    def __init__(self, classes_directory,
+                 bag_size: int=10,
+                 batch_size: int=10):
+        self.classes_directory = classes_directory
+        self.bag_size = bag_size
+        self.batch_size = batch_size
+        self.image_generator = ImageDataGenerator(rescale=1/255.)
+        self.image_flow = self.image_generator\
+            .flow_from_directory(classes_directory,
+                                 class_mode='binary',
+                                 batch_size=bag_size*batch_size)
+        self.image_cache = {0: [], 1: []}
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.next()
+
+    def cache_surplus(self, array, label):
+        last_index = -(len(array) % self.bag_size)
+        to_cache = array[last_index:]
+        self.image_cache.get(label).extend(to_cache)
+        return array[:last_index]
+
+    def handle_division_problems(self, array, label):
+        to_trim = len(array) % self.bag_size
+        to_augment = self.bag_size - to_trim
+        cache = self.image_cache.get(label)
+        if len(cache) >= to_augment:
+            # If where are enough images in cache
+            cache_slice = np.array([cache.pop() for _ in range(to_augment)])
+            array = np.concatenate((array, cache_slice))
+        else:
+            # If images are not enough, we just trim batch and save extra pics to cache
+            array = self.cache_surplus(array, label)
+        return array
+
+    def get_cache_info(self):
+        return len(self.image_cache[0]), len(self.image_cache[1])
+
+    def next(self):
+        # We get a batch
+        keras_batch, keras_labels = next(self.image_flow)
+        # TODO: what if not enough images?
+        positive_pics = keras_batch[np.argwhere(keras_labels == 1).reshape(-1)]
+        positive_pics = self.handle_division_problems(positive_pics, 1)
+        negative_pics = keras_batch[np.argwhere(keras_labels == 0).reshape(-1)]
+        negative_pics = self.handle_division_problems(negative_pics, 0)
+        result_x = np.concatenate((positive_pics, negative_pics))
+        p = np.random.permutation(len(result_x))
+        result_y = np.concatenate((np.ones(len(positive_pics)), np.zeros(len(negative_pics))))
+        return result_x[p], result_y[p]
+
+
+if __name__ == '__main__':
+    loader = KerasImageLoader(classes_directory='debug_imgs', batch_size=15, bag_size=50)
+    loader.next()
+
+
+
+
+
+
+
+
+
 
 
 class FolderLoader(object):
