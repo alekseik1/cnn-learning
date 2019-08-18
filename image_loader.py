@@ -11,6 +11,7 @@ from keras.preprocessing.image import ImageDataGenerator
 
 class KerasImageLoader:
 
+    # TODO: feature to augment with rotations/flips
     def __init__(self, classes_directory,
                  bag_size: int=10,
                  batch_size: int=10):
@@ -53,9 +54,13 @@ class KerasImageLoader:
         return len(self.image_cache[0]), len(self.image_cache[1])
 
     def next(self):
+        # TODO: track how many images are loaded and stop at the right moment
         # We get a batch
         keras_batch, keras_labels = next(self.image_flow)
-        # TODO: what if not enough images?
+        if len(keras_batch) != self.bag_size*self.batch_size:
+            # Keras ImageLoader gave smaller batch than expected, meaning that not enough images
+            raise StopIteration('Not enough images in folders to create at least one batch with shape {}'.
+                                format((self.batch_size, self.bag_size, *self.image_flow.image_shape)))
         positive_pics = keras_batch[np.argwhere(keras_labels == 1).reshape(-1)]
         positive_pics = self.handle_division_problems(positive_pics, 1)
         negative_pics = keras_batch[np.argwhere(keras_labels == 0).reshape(-1)]
@@ -67,7 +72,7 @@ class KerasImageLoader:
 
 
 if __name__ == '__main__':
-    loader = KerasImageLoader(classes_directory='debug_imgs', batch_size=15, bag_size=50)
+    loader = KerasImageLoader(classes_directory='debug_imgs', batch_size=10, bag_size=20)
     loader.next()
 
 
