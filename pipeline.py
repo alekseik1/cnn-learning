@@ -6,8 +6,10 @@ import os
 
 def data_generator(x_data, y_data):
     i = 0
-    while i < len(x_data) - 2:
+    while True:
         i += 1
+        if i+2 == len(x_data):
+            i = 0
         yield (x_data[i:i+2], {'decoded_output': x_data[i:i+2], 'classifier_output': y_data[i:i+2]})
 
 if __name__ == '__main__':
