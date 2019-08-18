@@ -2,10 +2,17 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from preprocessing import extend_to_bagsize
 from utils import split_into_bags, logger
+from keras.preprocessing.image import ImageDataGenerator
 
 
 def load_and_split_data(args):
     # TODO: better logging
+
+
+    generator = ImageDataGenerator().flow_from_directory('debug_imgs', class_mode='binary', batch_size=100)
+
+
+
     logger.info('started loading diseased images...')
     diseased_paths, diseased_imgs = load_images(args.diseased_dir, load_part=args.load_part)
     logger.info('diseased images are loaded')

@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from utils import ensure_folder
 from callbacks import SaveCallback
 import numpy as np
-from layers import SplitBagLayer, _attach_to_pipeline
+from layers import BagsToListLayer, _attach_to_pipeline, ImagesToBagLayer
 
 
 # TODO: make better name for the class
@@ -53,7 +53,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
         ]
 
         # Split bag into single images to get encoded vectors
-        splitted_imgs = SplitBagLayer(bag_size=input_shape[0])(input_img)
+        splitted_imgs = BagsToListLayer(bag_size=input_shape[0])(input_img)
         encoded_img_matrices = []
         for single_image in splitted_imgs:
             encoded_img = _attach_to_pipeline(single_image, encoder_pipeline)
@@ -98,6 +98,8 @@ class BagModel(BaseEstimator, ClassifierMixin):
     def fit(self, x_train, y_train):
         # TODO: Validation of parameters
         # Train/validation split
+        print('got x_train with shape: {}'.format(x_train.shape))
+        print('got y_train with shape: {}'.format(y_train.shape))
         x_train, x_val, y_train, y_val = train_test_split(x_train, y_train,
                                                           test_size=0.4, random_state=42)
 
@@ -121,6 +123,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
                 # Test data. Note that each output has its own data to train on!
                 {'decoded_output': x_train, 'classifier_output': y_train},
                 epochs=self.num_epochs,
+                # TODO: add batch size to script arguments
                 batch_size=self.batch_size,
                 shuffle=True,
                 validation_data=(x_val, {'classifier_output': y_val, 'decoded_output': x_val}),
@@ -137,3 +140,59 @@ class BagModel(BaseEstimator, ClassifierMixin):
         # 2. We actually don't need decoded images
         classes, decoded_imgs = self.model_.predict(x_data)
         return classes
+
+
+def build_model(image_shape, config):
+    input_img = Input(shape=image_shape)
+    # bags_layer = ImagesToBagLayer(config.bag_size)
+    bags_layer = Reshape((config.bag_size, *image_shape), input_shape=image_shape)(input_img)
+
+    # Create shared encoder.
+    encoder_pipeline = [
+        Conv2D(64, (3, 3), activation='relu', padding='same'),
+        MaxPooling2D((2, 2), padding='same'),
+        Conv2D(8, (3, 3), activation='relu', padding='same'),
+        MaxPooling2D((2, 2), padding='same'),
+    ]
+
+    # Split bag into single images to get encoded vectors
+    splitted_imgs = BagsToListLayer(bag_size=config.bag_size)(bags_layer)
+    encoded_img_matrices = []
+    for single_image in splitted_imgs:
+        encoded_img = _attach_to_pipeline(single_image, encoder_pipeline)
+        encoded_img_matrices.append(encoded_img)
+    # We have v=(vec1, ... , vecN) where N is number of images in one bag
+    # Now we need to do aggregation
+    concat_matrix = concatenate(
+        [Reshape((1, -1))(
+            Flatten()(img)
+        ) for img in encoded_img_matrices],
+        axis=1)
+    # Now we have array with shape (num_vectors, latent_features). Let's aggregate them
+    # NOTE: Aggregator is based on maximum
+
+    # THIS IS THE PART WHERE WE LOOSE 1 DIMENSION (dimension of bags)
+    aggregator = Lambda(lambda matrix: K.max(matrix, axis=1))(concat_matrix)
+
+    # After encoding, we need to classify images
+    classifier = Dense(1, activation=config.classifier_activation, name='classifier_output')(aggregator)
+
+    decoder_pipeline = [
+        Conv2D(8, (3, 3), activation='relu', padding='same'),
+        UpSampling2D((2, 2)),
+        Conv2D(64, (3, 3), activation='relu', padding='same'),
+        UpSampling2D((2, 2)),
+        Conv2D(image_shape[-1], (3, 3), activation='relu', padding='same'),
+        # reshape (None, w, h, c) -> (None, 1, w, h, c) where 'w'=width, 'h'=height, 'c'=color_channel
+        Reshape((1, *image_shape[1:]))
+    ]
+    decoded_images = [_attach_to_pipeline(single_image, decoder_pipeline) for single_image in encoded_img_matrices]
+    decoded_images = concatenate(decoded_images, axis=1, name='decoded_output')
+
+    model = Model(inputs=[input_img], outputs=[classifier, decoded_images])
+    model.compile(optimizer=config.optimizer,
+                  loss={'classifier_output': config.classifier_loss, 'decoded_output': config.decoder_loss},
+                  loss_weights=config.loss_weights,
+                  metrics={'classifier_output': config.classifier_metrics}
+                  )
+    return model

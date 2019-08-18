@@ -1,7 +1,14 @@
 from keras.layers import Lambda
+import keras.backend as K
+import numpy as np
 
 
-def SplitBagLayer(bag_size):
+def ImagesToBagLayer(bag_size):
+    return Lambda(lambda all_images: K.reshape(all_images,
+                                               (-1, bag_size, *all_images.shape[1:])))
+
+
+def BagsToListLayer(bag_size):
     return Lambda(lambda all_bags: [all_bags[:, i] for i in range(bag_size)])
 
 
