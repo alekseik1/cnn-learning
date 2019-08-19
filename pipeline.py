@@ -20,5 +20,4 @@ if __name__ == '__main__':
                               batch_size=config.batch_size,
                               save_best_only=config.save_best_only, tensorboard_dir=config.tensorboard_dir,
                               debug=config.debug)
-    model = model_instance._create_model((loader.bag_size, *loader.image_shape))
-    model.fit_generator(loader, steps_per_epoch=loader.total_images / config.batch_size, epochs=config.epochs)
+    model_instance.fit_generator(loader)

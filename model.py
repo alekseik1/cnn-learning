@@ -95,6 +95,25 @@ class BagModel(BaseEstimator, ClassifierMixin):
                       )
         return model
 
+    def fit_generator(self, generator):
+        self.model_ = self._create_model((generator.bag_size, *generator.image_shape))
+        callbacks = [SaveCallback(monitor_variable='val_classifier_output_acc',
+                                  model=self.model_, verbose=self.verbose,
+                                  save_best_only=self.save_best_only, debug=self.debug)]
+        if self.tensorboard_dir:
+            ensure_folder(self.tensorboard_dir)
+            callbacks.append(TensorBoard(log_dir=self.tensorboard_dir))
+        if self.load_path:
+            print('Loading model instead of training. See `config.py` for details.')
+            self.model_ = load_model(self.load_path)
+        else:
+            return self.model_.fit_generator(
+                generator,
+                steps_per_epoch=generator.total_images/generator.batch_size,
+                epochs=self.num_epochs,
+                callbacks=callbacks,
+            )
+
     def fit(self, x_train, y_train):
         # TODO: Validation of parameters
         # Train/validation split
