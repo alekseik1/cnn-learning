@@ -19,7 +19,7 @@ def split_into_bags(array, bag_size):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Network to process images')
-    parser.add_argument('--config_type', '-c', help='config type. Can be "debug", "test"')
+    parser.add_argument('--config_type', '-c', required=True, help='config type. Can be "debug", "test" or "production"')
 
     args = parser.parse_args()
     return args
