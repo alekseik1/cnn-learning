@@ -1,45 +1,10 @@
 from utils import parse_args
-from image_loader import ImageLoader
+from image_loader import KerasImageLoader
 from sklearn.pipeline import Pipeline
 import os
 import numpy as np
 from skimage.io import imread
 import itertools
-
-
-def bag_generator(batches, bag_size, image_shape):
-    ############################################################
-    # Here we just transform one batch to one bag. In future,
-    # however, DataGen batch_size != bag_size so that we need
-    # to reshape it in proper way.
-    ############################################################
-    print()
-    batch_x, batch_y = next(batches)
-    bag_x = batch_x.reshape((-1, bag_size, *image_shape))
-    bag_y = np.array(1)
-    yield np.zeros(2)
-
-
-BATCH_SIZE = 10
-def bag_batch_generator(ids, folder, batch_size=BATCH_SIZE):
-    batch = []
-    while True:
-        np.random.shuffle(ids)
-        for i in ids:
-            batch.append(i)
-            if len(batch) == batch_size:
-                yield load_data(batch, folder)
-                batch = []
-
-
-def load_data(ids):
-    X, y = [], []
-    for i in ids:
-        x = imread(f'{i}.png')
-        y = 0
-
-
-
 
 
 if __name__ == '__main__':
@@ -49,10 +14,10 @@ if __name__ == '__main__':
     from preprocessing import ImageScaler
 
 
-    loader = ImageLoader(class_paths=['debug_imgs/diseased', 'debug_imgs/healthy'],
-                         batch_size=10, bag_size=50, class_weights=(0.5, 0.5))
+    #loader = ImageLoader(class_paths=['debug_imgs/diseased', 'debug_imgs/healthy'],
+    #                     batch_size=10, bag_size=50, class_weights=(0.5, 0.5))
+    loader = KerasImageLoader(classes_directory='debug_imgs', bag_size=10, batch_size=2)
 
-    a = next(loader)
     model_instance = BagModel(num_epochs=args.epochs,
 
              # TODO: rename to `load_weights`
@@ -62,7 +27,7 @@ if __name__ == '__main__':
              batch_size=args.batch_size,
              save_best_only=args.save_best_only, tensorboard_dir=args.tensorboard_dir,
              debug=args.debug)
-    model = model_instance._create_model((loader.bag_size, *loader.image_shape, 1))
+    model = model_instance._create_model((loader.bag_size, *loader.image_shape))
     model.fit_generator(loader, steps_per_epoch=loader.total_images / args.batch_size, epochs=args.epochs)
 
 
