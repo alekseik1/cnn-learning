@@ -50,12 +50,16 @@ class ProductionLoadConfig(Config):
     healthy_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.01/control/1'
 
 
+CONFIG_TYPES = {'debug': DebugConfig,
+                'test': TestConfig,
+                'production': ProductionConfig,
+                'production_load': ProductionLoadConfig,
+                }
+
+
 def load_config(args):
-    if args.config_type == 'debug':
-        return DebugConfig
-    elif args.config_type == 'production':
-        return ProductionConfig
-    elif args.config_type == 'test':
-        return TestConfig
-    elif args.config_type == 'production_load':
-        return ProductionConfig
+        config = CONFIG_TYPES.get(args.config_type, None)
+        if not config:
+            raise ValueError('Incorrect type of config. ' +
+                             f'Should be one of following: {", ".join(CONFIG_TYPES.keys())}')
+        return config

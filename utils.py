@@ -1,6 +1,7 @@
 import argparse
 import logging
 import numpy as np
+from config import CONFIG_TYPES
 
 # TODO: configure me based on verbosity level
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -19,8 +20,8 @@ def split_into_bags(array, bag_size):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Network to process images')
-    parser.add_argument('--config_type', '-c', required=True, help='config type. Can be "debug", "test", '
-                                                                   '"production", "production_load')
+    parser.add_argument('--config_type', '-c', required=True,
+                        help=f'config type. Available configs: {", ".join(CONFIG_TYPES.keys())}')
 
     args = parser.parse_args()
     return args
