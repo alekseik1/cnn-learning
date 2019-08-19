@@ -41,6 +41,15 @@ class ProductionConfig(Config):
     healthy_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.01/control/1'
 
 
+class ProductionLoadConfig(Config):
+    epochs = 50
+    # TODO: change to your file name
+    weights_file = 'model_trained.h5'
+
+    diseased_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.01/diseased/1'
+    healthy_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.01/control/1'
+
+
 def load_config(args):
     if args.config_type == 'debug':
         return DebugConfig
@@ -48,3 +57,5 @@ def load_config(args):
         return ProductionConfig
     elif args.config_type == 'test':
         return TestConfig
+    elif args.config_type == 'production_load':
+        return ProductionConfig
