@@ -15,7 +15,7 @@ from layers import SplitBagLayer, _attach_to_pipeline
 class BagModel(BaseEstimator, ClassifierMixin):
 
     def __init__(self,
-                 load_path=None,
+                 model_weights_path=None,
                  optimizer='adadelta',
                  classifier_loss='binary_crossentropy',
                  classifier_activation='sigmoid',
@@ -35,7 +35,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.model_ = None
-        self.load_path = load_path
+        self.load_path = model_weights_path
         self.verbose = verbose
         self.save_best_only = save_best_only
         self.debug = debug
