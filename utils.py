@@ -2,6 +2,8 @@ import argparse
 import logging
 import numpy as np
 from config import CONFIG_TYPES
+from PIL import Image
+import os
 
 # TODO: configure me based on verbosity level
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -50,3 +52,14 @@ def get_best_bag_size(arr1: np.ndarray, arr2: np.ndarray):
             logger.info('Found best bag size: {}'.format(curr))
             return curr
         curr -= 1
+
+
+def save_array_as_images(array, path):
+    ensure_folder(path)
+    if array.shape[-1] == 1:
+        array = array.reshape(array.shape[:-1])
+    for i, single_image in enumerate(array):
+        im = Image.fromarray(single_image)
+        if im.mode != 'RGB':
+            im = im.convert('RGB')
+        im.save(os.path.join(path, f'{i}.png'))

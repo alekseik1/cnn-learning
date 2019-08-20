@@ -7,13 +7,15 @@ from keras.callbacks import TensorBoard
 import keras.backend as K
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import train_test_split
-from utils import ensure_folder
+from utils import ensure_folder, save_array_as_images
 from callbacks import SaveCallback
 import numpy as np
 from layers import SplitBagLayer, _attach_to_pipeline
 
 WEIGHTS_DIRECTORY = 'weights'
 TENSORBOARD_DIRECTORY = 'tensorboard-logs'
+# TODO: maybe move it to config?
+IMAGE_DIR = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/akozharin/images'
 
 
 # TODO: make better name for the class
@@ -157,5 +159,11 @@ class BagModel(BaseEstimator, ClassifierMixin):
         # NOTE. We do not return decoded pictures for two reasons:
         # 1. sklearn expect `predict` method to return one value
         # 2. We actually don't need decoded images
+        # TODO: better post-processing of image (mb create some reverse function to pre-processing)
+        save_array_as_images((255.*x_data).reshape(-1, *x_data.shape[2:]),
+                             os.path.join(os.getcwd(), IMAGE_DIR, 'original'))
         classes, decoded_imgs = self.model_.predict(x_data)
+        # TODO: better post-processing of image (mb create some reverse function to pre-processing)
+        save_array_as_images((255.*decoded_imgs).reshape(-1, *decoded_imgs.shape[2:]),
+                             os.path.join(os.getcwd(), IMAGE_DIR, 'decoded'))
         return classes
