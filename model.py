@@ -1,4 +1,5 @@
-from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense, Lambda, concatenate, Reshape
+from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, \
+    Flatten, Dense, Lambda, concatenate, Reshape, Dropout
 from keras import Model
 import os
 from keras.models import load_model
@@ -51,9 +52,12 @@ class BagModel(BaseEstimator, ClassifierMixin):
         # Create shared encoder.
         encoder_pipeline = [
             Conv2D(64, (3, 3), activation='relu', padding='same'),
-            MaxPooling2D((2, 2), padding='same'),
+            Conv2D(128, (3, 3), activation='relu', padding='same'),
+            MaxPooling2D((2, 2), padding='same', strides=2),
+            Conv2D(128, (3, 3), activation='relu', padding='same'),
+            MaxPooling2D((2, 2), padding='same', strides=2),
+            Conv2D(64, (3, 3), activation='relu', padding='same'),
             Conv2D(8, (3, 3), activation='relu', padding='same'),
-            MaxPooling2D((2, 2), padding='same'),
         ]
 
         # Split bag into single images to get encoded vectors
@@ -77,13 +81,19 @@ class BagModel(BaseEstimator, ClassifierMixin):
         aggregator = Lambda(lambda matrix: K.max(matrix, axis=1))(concat_matrix)
 
         # After encoding, we need to classify images
-        classifier = Dense(1, activation=self.classifier_activation, name='classifier_output')(aggregator)
+        classifier = Dense(128, activation=self.classifier_activation)(aggregator)
+        classifier = Dropout(rate=0.5)(classifier)
+        classifier = Dense(1, activation=self.classifier_activation, name='classifier_output')(classifier)
 
         decoder_pipeline = [
-            Conv2D(8, (3, 3), activation='relu', padding='same'),
+            Flatten(),
+            Dense(25*30*8),
+            Reshape((25, 30, 8)),
+            Conv2D(128, (3, 3), activation='relu', padding='same'),
             UpSampling2D((2, 2)),
             Conv2D(64, (3, 3), activation='relu', padding='same'),
             UpSampling2D((2, 2)),
+            Conv2D(32, (3, 3), activation='relu', padding='same'),
             Conv2D(input_shape[-1], (3, 3), activation='relu', padding='same'),
             # reshape (None, w, h, c) -> (None, 1, w, h, c) where 'w'=width, 'h'=height, 'c'=color_channel
             Reshape((1, *input_shape[1:]))
