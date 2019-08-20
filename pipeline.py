@@ -2,7 +2,6 @@ from utils import parse_args
 from image_loader import load_and_split_data
 from sklearn.pipeline import Pipeline
 from config import load_config
-import os
 
 if __name__ == '__main__':
     args = parse_args()
@@ -14,12 +13,18 @@ if __name__ == '__main__':
 
     pipeline = Pipeline([
         ('scaler', ImageScaler()),
-        ('regressor', BagModel(num_epochs=config.epochs,
-                               model_weights_path=(os.path.join(os.getcwd(), config.weights_dir, config.weights_file)
-                                          if config.weights_file else None),
-                               verbose=config.verbose,
+        ('regressor', BagModel(load_weights_from_file=(config.weights_file if config.weights_file else None),
+                               # TODO: read hardcoded options from config
+                               optimizer='adadelta',
+                               label=args.label,
+                               classifier_loss='binary_crossentropy',
+                               classifier_activation='sigmoid',
+                               decoder_loss='binary_crossentropy',
+                               classifier_metrics='accuracy',
+                               num_epochs=config.epochs,
                                batch_size=config.batch_size,
-                               save_best_only=config.save_best_only, tensorboard_dir=config.tensorboard_dir,
+                               verbose=config.verbose,
+                               save_best_only=config.save_best_only,
                                debug=config.debug))
     ])
     pipeline.fit(train_bags_x, train_bags_y)

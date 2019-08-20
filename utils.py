@@ -22,6 +22,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Network to process images')
     parser.add_argument('--config_type', '-c', required=True,
                         help=f'config type. Available configs: {", ".join(CONFIG_TYPES.keys())}')
+    parser.add_argument('--label', '-l', required=True, help='name of subfolder where weights and TF graphs are saved')
 
     args = parser.parse_args()
     return args

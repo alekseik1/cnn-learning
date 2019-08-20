@@ -14,21 +14,21 @@ class SaveCallback(keras.callbacks.Callback):
 
     def __init__(self, model, monitor_variable, verbose=0,
                  save_best_only=True,
-                 save_dir='trained',
+                 save_dir='unlabeled/trained',
                  mode='auto', period=1, debug=False):
         super(SaveCallback, self).__init__()
         self.model_to_save = model
         self.monitor_variable = monitor_variable
         self.verbose = verbose
         self.debug = debug
+        self.save_dir = save_dir
         # Check if directory exists
         ensure_folder(save_dir)
         _datetime = datetime.now().strftime("%d.%m.%Y-%H:%M:%S")
         if self.debug:
-            self.filepath = os.path.join(os.getcwd(), save_dir, 'model_trained.h5')
+            self.filepath = os.path.join(save_dir, 'model_trained.h5')
         else:
-            self.filepath = os.path.join(os.getcwd(), save_dir,
-                                         '%s-model_trained.epoch={epoch:02d}-%s={%s:.2f}.h5'
+            self.filepath = os.path.join(save_dir, '%s-model_trained.epoch={epoch:02d}-%s={%s:.2f}.h5'
                                          % (_datetime, monitor_variable, monitor_variable))
         self.save_best_only = save_best_only
         self.period = period
@@ -55,7 +55,6 @@ class SaveCallback(keras.callbacks.Callback):
                 self.best = np.Inf
 
     def on_epoch_end(self, epoch, logs=None):
-        # print('logs are: {}'.format(logs))
         logs = logs or {}
         self.epochs_since_last_save += 1
         if self.epochs_since_last_save >= self.period:

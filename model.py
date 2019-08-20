@@ -1,5 +1,6 @@
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Dense, Lambda, concatenate, Reshape
 from keras import Model
+import os
 from keras.models import load_model
 from keras.callbacks import TensorBoard
 import keras.backend as K
@@ -10,13 +11,17 @@ from callbacks import SaveCallback
 import numpy as np
 from layers import SplitBagLayer, _attach_to_pipeline
 
+WEIGHTS_DIRECTORY = 'weights'
+TENSORBOARD_DIRECTORY = 'tensorboard-logs'
+
 
 # TODO: make better name for the class
 class BagModel(BaseEstimator, ClassifierMixin):
 
     def __init__(self,
-                 model_weights_path=None,
+                 load_weights_from_file=None,
                  optimizer='adadelta',
+                 label='unlabeled',
                  classifier_loss='binary_crossentropy',
                  classifier_activation='sigmoid',
                  decoder_loss='binary_crossentropy',
@@ -25,9 +30,9 @@ class BagModel(BaseEstimator, ClassifierMixin):
                  batch_size=128,
                  verbose=False,
                  save_best_only=True,
-                 debug=False,
-                 tensorboard_dir=None):
+                 debug=False):
         self.optimizer = optimizer
+        self.label = label
         self.classifier_loss = classifier_loss
         self.classifier_activation = classifier_activation
         self.decoder_loss = decoder_loss
@@ -35,11 +40,10 @@ class BagModel(BaseEstimator, ClassifierMixin):
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.model_ = None
-        self.load_path = model_weights_path
+        self.load_weights_from_file = load_weights_from_file
         self.verbose = verbose
         self.save_best_only = save_best_only
         self.debug = debug
-        self.tensorboard_dir = tensorboard_dir
 
     def _create_model(self, input_shape):
         input_img = Input(shape=input_shape)
@@ -105,14 +109,22 @@ class BagModel(BaseEstimator, ClassifierMixin):
         y_train = (y_train > 0).astype(int)
 
         self.model_ = self._create_model(x_train.shape[1:])
+
+        weights_folder = os.path.join(os.getcwd(), self.label, WEIGHTS_DIRECTORY)
         callbacks = [SaveCallback(monitor_variable='val_classifier_output_acc',
-                                  model=self.model_, verbose=self.verbose,
-                                  save_best_only=self.save_best_only, debug=self.debug)]
-        if self.tensorboard_dir:
-            ensure_folder(self.tensorboard_dir)
-            callbacks.append(TensorBoard(log_dir=self.tensorboard_dir))
-        if self.load_path:
-            self.model_ = load_model(self.load_path)
+                                  save_dir=weights_folder,
+                                  model=self.model_,
+                                  verbose=self.verbose,
+                                  save_best_only=self.save_best_only,
+                                  debug=self.debug)]
+
+        # Take care of tensorboard
+        tb_folder = os.path.join(os.getcwd(), self.label, TENSORBOARD_DIRECTORY)
+        ensure_folder(tb_folder)
+        callbacks.append(TensorBoard(log_dir=tb_folder))
+
+        if self.load_weights_from_file:
+            self.model_ = load_model(self.load_weights_from_file)
         else:
             # Train it
             self.model_.fit(

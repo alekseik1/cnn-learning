@@ -2,14 +2,12 @@ class Config:
     """
     Basic config
     """
-    weights_dir = 'trained'
     save_best_only = True
     epochs = 10
     verbose = False
     debug = False
     load_part = 1.0
     weights_file = None
-    tensorboard_dir = 'tlogs'
     bag_size = 50
     batch_size = 10
     diseased_dir = 'diseased_imgs'
