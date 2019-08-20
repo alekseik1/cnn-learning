@@ -25,11 +25,8 @@ class SaveCallback(keras.callbacks.Callback):
         # Check if directory exists
         ensure_folder(save_dir)
         _datetime = datetime.now().strftime("%d.%m.%Y-%H:%M:%S")
-        if self.debug:
-            self.filepath = os.path.join(save_dir, 'model_trained.h5')
-        else:
-            self.filepath = os.path.join(save_dir, '%s-model_trained.epoch={epoch:02d}-%s={%s:.2f}.h5'
-                                         % (_datetime, monitor_variable, monitor_variable))
+        self.filepath = os.path.join(save_dir, '%s-model_trained.epoch={epoch:02d}-%s={%s:.2f}.h5'
+                                     % (_datetime, monitor_variable, monitor_variable))
         self.save_best_only = save_best_only
         self.period = period
         self.epochs_since_last_save = 0
