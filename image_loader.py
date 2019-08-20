@@ -4,13 +4,13 @@ from preprocessing import extend_to_bagsize
 from utils import split_into_bags, logger
 
 
-def load_and_split_data(args):
+def load_and_split_data(diseased_dir, load_part, healthy_dir, bag_size):
     # TODO: better logging
     logger.info('started loading diseased images...')
-    diseased_paths, diseased_imgs = load_images(args.diseased_dir, load_part=args.load_part)
+    diseased_paths, diseased_imgs = load_images(diseased_dir, load_part=load_part)
     logger.info('diseased images are loaded')
     logger.info('started loading healthy images...')
-    healthy_paths, healthy_imgs = load_images(args.healthy_dir, load_part=args.load_part)
+    healthy_paths, healthy_imgs = load_images(healthy_dir, load_part=load_part)
     logger.info('healthy images are loaded')
     if len(diseased_imgs.shape) == 3:
         logger.info('adding color channels to diseased images...')
@@ -23,15 +23,15 @@ def load_and_split_data(args):
         healthy_imgs = add_color_channel(healthy_imgs)
         logger.info('color channel added for healthy images')
 
-    diseased_imgs = extend_to_bagsize(args.bag_size, diseased_imgs)
-    healthy_imgs = extend_to_bagsize(args.bag_size, healthy_imgs)
+    diseased_imgs = extend_to_bagsize(bag_size, diseased_imgs)
+    healthy_imgs = extend_to_bagsize(bag_size, healthy_imgs)
 
     logger.info('splitting into bags...')
-    diseased_bag_x = split_into_bags(diseased_imgs, args.bag_size)
+    diseased_bag_x = split_into_bags(diseased_imgs, bag_size)
     diseased_bag_y = np.zeros(len(diseased_bag_x))
     logger.info('split into bags: diseased')
 
-    healthy_bag_x = split_into_bags(healthy_imgs, args.bag_size)
+    healthy_bag_x = split_into_bags(healthy_imgs, bag_size)
     healthy_bag_y = np.ones(len(healthy_bag_x))
     logger.info('split into bags: healthy')
     all_bags_x, all_bags_y = np.concatenate((diseased_bag_x, healthy_bag_x)), \

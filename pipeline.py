@@ -9,7 +9,12 @@ if __name__ == '__main__':
 
     from model import BagModel
     from preprocessing import ImageScaler
-    (train_bags_x, train_bags_y), (test_bags_x, test_bags_y) = load_and_split_data(config)
+    (train_bags_x, train_bags_y), (test_bags_x, test_bags_y) = load_and_split_data(
+        diseased_dir=config.diseased_dir,
+        healthy_dir=config.healthy_dir,
+        load_part=config.load_part,
+        bag_size=config.bag_size
+    )
 
     pipeline = Pipeline([
         ('scaler', ImageScaler()),

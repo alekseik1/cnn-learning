@@ -2,14 +2,19 @@ class Config:
     """
     Basic config
     """
-    save_best_only = True
+    weights_file = None
+    optimizer = 'adadelta'
+    classifier_loss = 'binary_crossentropy'
+    classifier_activation = 'sigmoid'
+    decoder_loss = 'binary_crossentropy'
+    classifier_metrics = 'accuracy'
     epochs = 10
+    batch_size = 10
     verbose = False
+    save_best_only = True
     debug = False
     load_part = 1.0
-    weights_file = None
     bag_size = 50
-    batch_size = 10
     diseased_dir = 'diseased_imgs'
     healthy_dir = 'healthy_imgs'
 
