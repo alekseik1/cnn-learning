@@ -53,10 +53,31 @@ class ProductionLoadConfig(Config):
     healthy_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.01/control/1'
 
 
+class RealData_1_percent(Config):
+    epochs = 50
+    diseased_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.01/diseased/1'
+    healthy_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.01/control/1'
+
+
+class RealData_5_percent(Config):
+    epochs = 50
+    diseased_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.05/diseased/1'
+    healthy_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.05/control/1'
+
+
+class RealData_10_percent(Config):
+    epochs = 50
+    diseased_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.1/diseased/1'
+    healthy_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.1/control/1'
+
+
 CONFIG_TYPES = {'debug': DebugConfig,
                 'test': TestConfig,
                 'production': ProductionConfig,
                 'production_load': ProductionLoadConfig,
+                'real_1': RealData_1_percent,
+                'real_5': RealData_5_percent,
+                'real_10': RealData_10_percent
                 }
 
 
