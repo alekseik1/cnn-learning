@@ -26,6 +26,8 @@ if __name__ == '__main__':
                                classifier_activation='sigmoid',
                                decoder_loss='binary_crossentropy',
                                classifier_metrics='accuracy',
+                               classifier_loss_weight=1.0,
+                               decoder_loss_weight=1.0,
                                num_epochs=config.epochs,
                                batch_size=config.batch_size,
                                verbose=config.verbose,

@@ -29,6 +29,8 @@ class BagModel(BaseEstimator, ClassifierMixin):
                  classifier_activation='sigmoid',
                  decoder_loss='binary_crossentropy',
                  classifier_metrics='accuracy',
+                 classifier_loss_weight=1.0,
+                 decoder_loss_weight=1.0,
                  num_epochs=10,
                  batch_size=128,
                  verbose=False,
@@ -40,6 +42,8 @@ class BagModel(BaseEstimator, ClassifierMixin):
         self.classifier_activation = classifier_activation
         self.decoder_loss = decoder_loss
         self.classifier_metrics = classifier_metrics
+        self.classifier_loss_weight = classifier_loss_weight
+        self.decoder_loss_weight = decoder_loss_weight
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.model_ = None
@@ -106,7 +110,8 @@ class BagModel(BaseEstimator, ClassifierMixin):
         model = Model(inputs=[input_img], outputs=[classifier, decoded_images])
         model.compile(optimizer=self.optimizer,
                       loss={'classifier_output': self.classifier_loss, 'decoded_output': self.decoder_loss},
-                      loss_weights={'classifier_output': 1.0, 'decoded_output': 1.0},
+                      loss_weights={'classifier_output': self.classifier_loss_weight,
+                                    'decoded_output': self.decoder_loss_weight},
                       metrics={'classifier_output': self.classifier_metrics}
                       )
         return model
