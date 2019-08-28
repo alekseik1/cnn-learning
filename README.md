@@ -2,20 +2,34 @@
 This repo contains CNN model based on _Autoencoder_ and _Classifier_.
 The model uses "bags" as additional dimension to support weakly-supervised structure of data.
 
+## Contents
+1. [Preparing](#preparing)
+2. [Running](#running)
+3. [Select images](#dataset-path)
+    - [MNIST](#mnist-dataset)
+    - [From folder](#load-from-folder)
+4. [Custom configs](#extending-configs)
+5. [Architecture overview](#architecture)
+    - [Encoder](#encoder)
+    - [Decoder](#decoder)
+    - [Classifier](#classifier)
+6. [Known problems](#known-problems)
+7. [Contributing](#contributing)
+
 ## Preparing
 __On ETH cluster__, all required packages are already included. 
 You __don't__ need to create any virtual environments as it causes problems.
 
 If you run it outside ETH cluster, I recommend you to create virtual environment for that.
 
-__virtualenv__:
+#### virtualenv
 ```bash
 virtualenv -p /usr/bin/python3 venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-__Anaconda (or conda)__:
+#### Anaconda (or conda)
 ```bash
 conda create --name cnn_bags
 conda activate cnn_bags
