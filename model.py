@@ -92,9 +92,6 @@ class BagModel(BaseEstimator, ClassifierMixin):
         classifier = Dense(1, activation=self.classifier_activation, name='classifier_output')(classifier)
 
         decoder_pipeline = [
-            Flatten(),
-            Dense(25*30*8),
-            Reshape((25, 30, 8)),
             Conv2D(128, (3, 3), activation='relu', padding='same'),
             UpSampling2D((2, 2)),
             Conv2D(64, (3, 3), activation='relu', padding='same'),
