@@ -1,6 +1,7 @@
 from utils import parse_args
 from image_loader import load_and_split_data
 from sklearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV
 from config import load_config
 
 if __name__ == '__main__':
@@ -34,7 +35,20 @@ if __name__ == '__main__':
                                save_best_only=config.save_best_only,
                                debug=config.debug))
     ])
-    pipeline.fit(train_bags_x, train_bags_y)
 
-    print('TEST: Score on test data: ', pipeline.score(test_bags_x, test_bags_y))
-    print('TRAIN: Score on test data: ', pipeline.score(train_bags_x, train_bags_y))
+    # TODO: customize for your own GridSearch
+    # We will cover many proportions
+    param_grid = {
+        'regressor__classifier_loss_weight': [0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0],
+        'regressor__decoder_loss_weight': [1.0],
+    }
+    clf = GridSearchCV(pipeline, param_grid)
+    clf.fit(train_bags_x, train_bags_y)
+    print(f'CV results are:')
+    print(clf.cv_results_)
+    print('----- Best estimator is:')
+    print(clf.best_estimator_)
+    #pipeline.fit(train_bags_x, train_bags_y)
+
+    #print('TEST: Score on test data: ', pipeline.score(test_bags_x, test_bags_y))
+    #print('TRAIN: Score on test data: ', pipeline.score(train_bags_x, train_bags_y))
