@@ -7,7 +7,7 @@ from config import load_config, MNIST_config
 if __name__ == '__main__':
     args = parse_args()
     config = load_config(args)
-    if config is MNIST_config:
+    if hasattr(config, 'zero_bags'):
         # If MNIST config is passed
         (train_bags_x, train_bags_y), (test_bags_x, test_bags_y) = load_mnist(
             bag_size=config.bag_size,
