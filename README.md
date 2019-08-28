@@ -3,13 +3,13 @@ This repo contains CNN model based on _Autoencoder_ and _Classifier_.
 The model uses "bags" as additional dimension to support weakly-supervised structure of data.
 
 ## Contents
-1. [Preparing](#preparing)
-2. [Running](#running)
+1. [Preparation](#preparing)
+2. [How to run](#running)
 3. [Select images](#dataset-path)
     - [MNIST](#mnist-dataset)
     - [From folder](#load-from-folder)
 4. [Custom configs](#extending-configs)
-5. [Architecture overview](#architecture)
+5. [Model overview](#architecture)
     - [Encoder](#encoder)
     - [Decoder](#decoder)
     - [Classifier](#classifier)
