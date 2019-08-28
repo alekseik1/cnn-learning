@@ -30,28 +30,10 @@ def parse_args():
     return args
 
 
-def test_layer(layer, data):
-    from keras import Model
-    from keras.models import Input
-    input_layer = Input(shape=data.shape[1:])
-    model = Model(inputs=[input_layer], outputs=layer(input_layer))
-    model.compile(optimizer='adadelta', loss='binary_crossentropy')
-    return model.predict(data)
-
-
 def ensure_folder(path):
     import os
     if not os.path.exists(path):
         os.makedirs(path)
-
-
-def get_best_bag_size(arr1: np.ndarray, arr2: np.ndarray):
-    curr = min(arr1.shape[0], arr2.shape[0])//10
-    while curr > 0:
-        if arr1.shape[0] % curr == 0 and arr2.shape[0] % curr == 0:
-            logger.info('Found best bag size: {}'.format(curr))
-            return curr
-        curr -= 1
 
 
 def save_array_as_images(array, path):
