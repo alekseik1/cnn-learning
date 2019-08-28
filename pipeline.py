@@ -1,21 +1,29 @@
 from utils import parse_args
-from image_loader import load_and_split_data
+from image_loader import load_and_split_data, load_mnist
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
-from config import load_config
+from config import load_config, MNIST_config
 
 if __name__ == '__main__':
     args = parse_args()
     config = load_config(args)
+    if config is MNIST_config:
+        # If MNIST config is passed
+        (train_bags_x, train_bags_y), (test_bags_x, test_bags_y) = load_mnist(
+            bag_size=config.bag_size,
+            zeros_in_bag=config.zeros_in_bag,
+            zero_bags=config.zero_bags
+        )
+    else:
+        (train_bags_x, train_bags_y), (test_bags_x, test_bags_y) = load_and_split_data(
+            diseased_dir=config.diseased_dir,
+            healthy_dir=config.healthy_dir,
+            load_part=config.load_part,
+            bag_size=config.bag_size
+        )
 
     from model import BagModel
     from preprocessing import ImageScaler
-    (train_bags_x, train_bags_y), (test_bags_x, test_bags_y) = load_and_split_data(
-        diseased_dir=config.diseased_dir,
-        healthy_dir=config.healthy_dir,
-        load_part=config.load_part,
-        bag_size=config.bag_size
-    )
 
     pipeline = Pipeline([
         ('scaler', ImageScaler()),
