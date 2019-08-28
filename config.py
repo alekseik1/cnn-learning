@@ -90,6 +90,8 @@ class MNIST_config(Config):
 
 class MNIST_1_percent(MNIST_config):
     zeros_in_bag = 0.01
+    bag_size = 300
+    batch_size = 1
 
 
 class MNIST_5_percent(MNIST_config):
@@ -100,6 +102,10 @@ class MNIST_10_percent(MNIST_config):
 
 class MNIST_20_percent(MNIST_config):
     zeros_in_bag = 0.20
+
+
+class MNIST_50_percent(MNIST_config):
+    zeros_in_bag = 0.50
 
 
 CONFIG_TYPES = {'debug': DebugConfig,
@@ -114,6 +120,7 @@ CONFIG_TYPES = {'debug': DebugConfig,
                 'mnist_5': MNIST_5_percent,
                 'mnist_10': MNIST_10_percent,
                 'mnist_20': MNIST_20_percent,
+                'mnist_50': MNIST_50_percent,
                 }
 
 
