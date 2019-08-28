@@ -3,7 +3,7 @@ This repo contains CNN model based on _Autoencoder_ and _Classifier_.
 The model uses "bags" as additional dimension to support weakly-supervised structure of data.
 
 ## Preparing
-On ETH cluster, all required packages are already included. 
+__On ETH cluster__, all required packages are already included. 
 You __don't__ need to create any virtual environments as it causes problems.
 
 If you run it outside ETH cluster, I recommend you to create virtual environment for that.
@@ -76,7 +76,9 @@ It's easy to write your own configuration.
 Just create a class in `config.py` inheriting `Config` class and make required changes.
 
 ## Architecture
-As in Keras,
+You can always look up `model.py`, function `_create_model` to see it.
+For now, architecture is as follows:
+
 #### Encoder
 - Conv2D(64, (3, 3), activation='relu', padding='same')
 - Conv2D(128, (3, 3), activation='relu', padding='same')
@@ -99,3 +101,16 @@ As in Keras,
 - Dense(128, activation=\<from config\>)
 - Dropout(rate=0.5)
 - Dense(1, activation=\<from config\>)
+
+## Known problems
+- Easy OOMs even on Tesla GPUs (with 32Gb of RAM).
+Use `batch_size=1` to avoid such problems (_will take long to train_).
+- Poorly decoded images. _To be investigated..._
+- (as consequence) Bad results for real cells.
+Maybe we should additionally do some preprocessing of images?
+- Slow image loading from NAS.
+Perhaps, due to it's network-based nature.
+
+## Contributing
+PRs are always welcome.
+If you'd like to become the maintainer, email [me](mailto:1alekseik1@gmail.com).
