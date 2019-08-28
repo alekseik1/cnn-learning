@@ -71,13 +71,31 @@ class RealData_10_percent(Config):
     healthy_dir = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/corino/Scratch/EmanuelDatasets/tryp_0.1/control/1'
 
 
+class MNIST_config(Config):
+    ###################################################
+    # Note that MNIST doesn't require images folder   #
+    # since dataset is downloaded from Net. Instead,  #
+    # you need to pass `zeros_in_bag` and `zero_bags` #
+    # parameters.                                     #
+    ###################################################
+    healthy_dir, diseased_dir = None, None
+    epochs = 50
+    batch_size = 5
+    bag_size = 100
+    # Percentage of zeros in one bag
+    zeros_in_bag = 0.05
+    # Percentage of bags labeled as '0' in all dataset
+    zero_bags = 0.5
+
+
 CONFIG_TYPES = {'debug': DebugConfig,
                 'test': TestConfig,
                 'production': ProductionConfig,
                 'production_load': ProductionLoadConfig,
                 'real_1': RealData_1_percent,
                 'real_5': RealData_5_percent,
-                'real_10': RealData_10_percent
+                'real_10': RealData_10_percent,
+                'mnist': MNIST_config,
                 }
 
 
