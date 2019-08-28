@@ -36,6 +36,14 @@ def ensure_folder(path):
         os.makedirs(path)
 
 
+def print_config(config):
+    logger.info('##### Printing config: ####')
+    parent_props = set(dir(config.__class__))
+    own_props = set(dir(config)) - parent_props
+    for prop in own_props:
+        logger.info('{} = {}'.format(prop, getattr(config, prop)))
+
+
 def save_array_as_images(array, path):
     ensure_folder(path)
     if array.shape[-1] == 1:

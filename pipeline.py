@@ -1,8 +1,8 @@
-from utils import parse_args
+from utils import parse_args, print_config
 from image_loader import load_and_split_data, load_mnist
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
-from config import load_config, MNIST_config
+from config import load_config
 
 if __name__ == '__main__':
     args = parse_args()
@@ -21,6 +21,8 @@ if __name__ == '__main__':
             load_part=config.load_part,
             bag_size=config.bag_size
         )
+
+    print_config(config)
 
     from model import BagModel
     from preprocessing import ImageScaler
