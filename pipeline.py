@@ -50,7 +50,7 @@ if __name__ == '__main__':
         'regressor__classifier_loss_weight': [0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0],
         'regressor__decoder_loss_weight': [1.0],
     }
-    clf = GridSearchCV(pipeline, param_grid)
+    clf = GridSearchCV(pipeline, param_grid, n_jobs=1, pre_dispatch=1)
     clf.fit(train_bags_x, train_bags_y)
     print(f'CV results are:')
     print(clf.cv_results_)
