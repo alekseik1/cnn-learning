@@ -88,6 +88,20 @@ class MNIST_config(Config):
     zero_bags = 0.5
 
 
+class MNIST_1_percent(MNIST_config):
+    zeros_in_bag = 0.01
+
+
+class MNIST_5_percent(MNIST_config):
+    zeros_in_bag = 0.05
+
+class MNIST_10_percent(MNIST_config):
+    zeros_in_bag = 0.10
+
+class MNIST_20_percent(MNIST_config):
+    zeros_in_bag = 0.20
+
+
 CONFIG_TYPES = {'debug': DebugConfig,
                 'test': TestConfig,
                 'production': ProductionConfig,
@@ -96,6 +110,10 @@ CONFIG_TYPES = {'debug': DebugConfig,
                 'real_5': RealData_5_percent,
                 'real_10': RealData_10_percent,
                 'mnist': MNIST_config,
+                'mnist_1': MNIST_1_percent,
+                'mnist_5': MNIST_5_percent,
+                'mnist_10': MNIST_10_percent,
+                'mnist_20': MNIST_20_percent,
                 }
 
 
