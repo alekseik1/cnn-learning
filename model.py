@@ -15,6 +15,7 @@ from layers import SplitBagLayer, _attach_to_pipeline
 WEIGHTS_DIRECTORY = 'weights'
 TENSORBOARD_DIRECTORY = 'tensorboard-logs'
 # TODO: maybe move it to config?
+# TODO: HARDCODED link. It can be broken or unaccessable
 IMAGE_DIR = '/nfs/nas22.ethz.ch/fs2202/biol_imsb_claassen_1/akozharin/images'
 
 
@@ -92,6 +93,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
         classifier = Dense(1, activation=self.classifier_activation, name='classifier_output')(classifier)
 
         decoder_pipeline = [
+            # TODO: maybe make activation functions tunable?
             Conv2D(128, (3, 3), activation='relu', padding='same'),
             UpSampling2D((2, 2)),
             Conv2D(64, (3, 3), activation='relu', padding='same'),
@@ -117,6 +119,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
         # TODO: Validation of parameters
         # Train/validation split
         x_train, x_val, y_train, y_val = train_test_split(x_train, y_train,
+                                                          # TODO: mb make `test_size` tunable?
                                                           test_size=0.4, random_state=42)
 
         # NOTE: we make category matrix from y_train here!
@@ -125,6 +128,7 @@ class BagModel(BaseEstimator, ClassifierMixin):
         self.model_ = self._create_model(x_train.shape[1:])
 
         weights_folder = os.path.join(os.getcwd(), self.label, WEIGHTS_DIRECTORY)
+        # TODO: hardcoded monitor variable. Move it to config file
         callbacks = [SaveCallback(monitor_variable='val_classifier_output_acc',
                                   save_dir=weights_folder,
                                   model=self.model_,
@@ -161,14 +165,15 @@ class BagModel(BaseEstimator, ClassifierMixin):
         # NOTE. We do not return decoded pictures for two reasons:
         # 1. sklearn expect `predict` method to return one value
         # 2. We actually don't need decoded images
-        # TODO: better post-processing of image (mb create some reverse function to pre-processing)
+        # NOTE: uncomment these two pieces if you want decoded and original pictures to be saved on NAS
         '''
+        # TODO: better post-processing of image (mb create some reverse function to pre-processing)
         save_array_as_images((255.*x_data).reshape(-1, *x_data.shape[2:]),
                              os.path.join(os.getcwd(), IMAGE_DIR, 'original'))
         '''
         classes, decoded_imgs = self.model_.predict(x_data)
-        # TODO: better post-processing of image (mb create some reverse function to pre-processing)
         '''
+        # TODO: better post-processing of image (mb create some reverse function to pre-processing)
         save_array_as_images((255.*x_data).reshape(-1, *x_data.shape[2:]),
         save_array_as_images((255.*decoded_imgs).reshape(-1, *decoded_imgs.shape[2:]),
                              os.path.join(os.getcwd(), IMAGE_DIR, 'decoded'))

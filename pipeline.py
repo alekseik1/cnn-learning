@@ -15,6 +15,7 @@ if __name__ == '__main__':
             zero_bags=config.zero_bags
         )
     else:
+        # No MNIST, load data from folder
         (train_bags_x, train_bags_y), (test_bags_x, test_bags_y) = load_and_split_data(
             diseased_dir=config.diseased_dir,
             healthy_dir=config.healthy_dir,
@@ -46,9 +47,12 @@ if __name__ == '__main__':
                                debug=config.debug))
     ])
 
-    # TODO: customize for your own GridSearch
+    # TODO: uncomment this block and comment block with 'print()'s to do a grid search
+    '''
     # We will cover many proportions
+    # TODO: customize for your own GridSearch
     param_grid = {
+        # Don't forget to place 'regeressor__...' at the beginning. See sklearn docs for details.
         'regressor__classifier_loss_weight': [0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0],
         'regressor__decoder_loss_weight': [1.0],
     }
@@ -58,7 +62,11 @@ if __name__ == '__main__':
     print(clf.cv_results_)
     print('----- Best estimator is:')
     print(clf.best_estimator_)
-    #pipeline.fit(train_bags_x, train_bags_y)
+    '''
+    #'''
+    # No grid search
+    pipeline.fit(train_bags_x, train_bags_y)
 
-    #print('TEST: Score on test data: ', pipeline.score(test_bags_x, test_bags_y))
-    #print('TRAIN: Score on test data: ', pipeline.score(train_bags_x, train_bags_y))
+    print('TEST: Score on test data: ', pipeline.score(test_bags_x, test_bags_y))
+    print('TRAIN: Score on train data: ', pipeline.score(train_bags_x, train_bags_y))
+    #'''
