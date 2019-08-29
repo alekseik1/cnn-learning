@@ -1,3 +1,9 @@
+###################################################
+# Very small file. Once you decide to refactor    #
+# the code, it'll be good place for custom layers #
+###################################################
+
+
 from keras.layers import Lambda
 
 

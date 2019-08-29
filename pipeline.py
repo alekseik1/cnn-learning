@@ -1,3 +1,9 @@
+###################################################
+# The main file for launching the model. See all  #
+# instructions in README                          #
+###################################################
+
+
 from utils import parse_args, print_config
 from image_loader import load_and_split_data, load_mnist
 from sklearn.pipeline import Pipeline

@@ -1,3 +1,9 @@
+###################################################
+# Here you'll find all code about loading images  #
+# both from MNIST and folders.                    #
+###################################################
+
+
 import numpy as np
 from sklearn.model_selection import train_test_split
 from preprocessing import extend_to_bagsize

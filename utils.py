@@ -1,3 +1,11 @@
+###################################################
+# Here you'll find some utils for loading images, #
+# reshaping arrays, parsing args and all other    #
+# routine rubbish that need to be done before     #
+# training the model.                             #
+###################################################
+
+
 import argparse
 import logging
 import numpy as np

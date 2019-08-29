@@ -1,3 +1,10 @@
+###################################################
+# Here you'll find all available configs. You can #
+# also create your own config! See `README.md`    #
+# for details.                                    #
+###################################################
+
+
 class Config:
     """
     Basic config

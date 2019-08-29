@@ -1,3 +1,10 @@
+###################################################
+# Here you'll find callbacks that are executed    #
+# after each epoch. NOTE: TensorBoard callback is #
+# in `model.py` file.                             #
+###################################################
+
+
 import os
 import warnings
 from datetime import datetime

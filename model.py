@@ -1,3 +1,10 @@
+###################################################
+# Here you'll find the model itself. Tune it, and #
+# don't forget to take out all hyperparameters to #
+# config files!                                   #
+###################################################
+
+
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, \
     Flatten, Dense, Lambda, concatenate, Reshape, Dropout
 from keras import Model

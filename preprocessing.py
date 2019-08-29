@@ -1,3 +1,9 @@
+###################################################
+# Small file with preprocessing tools. Maybe it   #
+# should be merged with `utils.py`?               #
+###################################################
+
+
 from sklearn.preprocessing import FunctionTransformer
 from utils import logger
 import numpy as np
